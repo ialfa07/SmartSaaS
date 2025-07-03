@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from fastapi import Depends, HTTPException
 from models import User
 
