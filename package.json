@@ -1,0 +1,17 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "Plateforme tout-en-un automatisée permettant aux petites entreprises et freelances de :  Générer du contenu marketing via IA (texte, visuel, planning…)  Automatiser des tâches (emails, posts, etc.)  Gérer leur activité marketing  Être récompensés par une crypto interne (SaaS) liée à leur usage et parrainages",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "framer-motion": "^12.23.0",
+    "react-hot-toast": "^2.5.2"
+  }
+}
