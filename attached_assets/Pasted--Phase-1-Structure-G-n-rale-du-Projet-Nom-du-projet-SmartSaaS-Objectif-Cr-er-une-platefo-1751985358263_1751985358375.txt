@@ -1,0 +1,107 @@
+🚀 Phase 1 : Structure Générale du Projet
+📘 Nom du projet : SmartSaaS
+🎯 Objectif
+Créer une plateforme tout-en-un automatisée permettant aux petites entreprises et freelances de :
+
+Générer du contenu marketing via IA (texte, visuel, planning…)
+
+Automatiser des tâches (emails, posts, etc.)
+
+Gérer leur activité marketing
+
+Être récompensés par une crypto interne (SaaS) liée à leur usage et parrainages
+
+🧩 Modules Clés du Produit
+1. 🔥 Générateur de contenu IA
+📄 Texte : posts, descriptions de produits, scripts vidéo
+
+🎨 Visuels (images, logos, flyers) : via DALL·E ou Stability
+
+📅 Planification automatique sur un calendrier
+
+📢 Export vers Canva ou réseaux (via Zapier ou API)
+
+2. 🤖 Assistant AI (Chatbot intégré)
+Génère contenu en live
+
+Peut répondre à des questions business/marketing
+
+Optimise le temps de travail
+
+3. 🎁 Module de parrainage & récompense
+Action	Récompense en SaaS
+Parrainage (inscription validée)	+10 SaaS
+Paiement d’un abonnement	+20 SaaS
+Publication automatique réussie	+1 SaaS
+Feedback / Avis utilisateur	+5 SaaS
+
+👉 Les jetons SaaS seront visibles dans le profil utilisateur, et utilisables pour :
+
+Réduction sur les abonnements
+
+Débloquer des outils avancés
+
+Échanger contre des abonnements offerts ou des bonus
+
+🪙 Intégration de la Crypto SaaS
+🔗 Type : Jeton ERC-20 (Polygon ou Solana pour frais réduits)
+💼 Nom : SaaS Token
+
+🧾 Utilité : Reward, fidélité, utilité interne
+
+🔐 Portefeuille intégré : Metamask ou WalletConnect
+
+🔄 Pas besoin d’achat pour commencer → Gain via usage et parrainage
+
+⛓️ Option pour les convertir en USDT ou ETH plus tard (via pool)
+
+🧱 Stack Technique
+🖥️ Frontend
+React (Next.js) + TailwindCSS
+
+Authentification : Clerk ou Firebase Auth
+
+Stripe pour les paiements
+
+⚙️ Backend
+Python (FastAPI) ou Node.js (Express)
+
+OpenAI API (GPT-4o) pour génération
+
+Stability/DALL·E pour visuels
+
+Smart contract Solidity (SaaS Token ERC-20)
+
+BDD : PostgreSQL (Supabase ou Railway)
+
+🪙 Web3
+Smart contract SaaS sur Polygon (testnet d’abord)
+
+Interaction Web3 via Ethers.js
+
+🛠️ Dashboard Utilisateur
+Section	Fonction
+🧠 Générateur IA	Texte, visuel, etc.
+📆 Planning	Calendrier de publications
+💰 Abonnement	Plans + historique
+👥 Parrainage	Inviter + Gagner des SaaS
+🪙 Jetons SaaS	Solde + Historique
+⚙️ Paramètres	Intégrations (Canva, réseaux…)
+
+💸 Modèle économique
+Plan	Prix	Fonctionnalités
+Freemium	0€	5 crédits IA + 0.5 SaaS/jour
+Starter	9€/mois	100 crédits + bonus 10 SaaS
+Pro	29€/mois	Illimité + 50 SaaS mensuels
+Business	99€/mois	Multi-comptes + export CSV/API + 100 SaaS mensuels
+
+🔄 Étapes de Développement
+Étape	Action	Délai estimé
+✅ 1	Cahier des charges complet	1 jour
+✅ 2	Générateur IA de texte (MVP)	3-5 jours
+✅ 3	Interface utilisateur + Auth	2 jours
+🔜 4	Module crypto & jetons SaaS (testnet)	4 jours
+🔜 5	Automatisation marketing (planification + emails)	3 jours
+🔜 6	Déploiement SaaS (Vercel + Supabase)	2 jours
+🔜 7	Ajout dashboard crypto & système de parrainage	3 jours
+🔜 8	Lancement bêta	🟡
