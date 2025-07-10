@@ -1,16 +1,24 @@
-# users.py
 
-from models import User
-from database import fake_user_db
+# Module de gestion des utilisateurs
+from typing import Dict
 
-def authenticate_user(email: str, password: str) -> User | None:
-    user = fake_user_db.get(email)
-    if user and user["password"] == password:
-        return User(email=email)
-    return None
+# Base de données simulée
+users_database: Dict[str, dict] = {
+    "test@example.com": {
+        "email": "test@example.com",
+        "password": "123456",
+        "credits": 50,
+        "plan": "free"
+    }
+}
 
-def create_user(email: str, password: str) -> User | None:
-    if email in fake_user_db:
-        return None
-    fake_user_db[email] = {"email": email, "password": password, "credits": 5}
-    return User(email=email)
+def get_user_by_email(email: str):
+    return users_database.get(email)
+
+def update_user_credits(email: str, credits: int):
+    if email in users_database:
+        users_database[email]["credits"] = credits
+
+def add_user_credits(email: str, credits: int):
+    if email in users_database:
+        users_database[email]["credits"] += credits

@@ -115,3 +115,7 @@ def generate_calendar_endpoint(request: CalendarRequest, user: User = Depends(fa
         }
     else:
         raise HTTPException(status_code=400, detail=result["error"])
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

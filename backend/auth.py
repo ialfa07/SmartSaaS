@@ -1,9 +1,15 @@
+
 from fastapi import Depends, HTTPException
 from models import User
 
 # Simule une "base de données" avec 1 utilisateur
 users_db = {
-    "test@example.com": {"email": "test@example.com", "password": "123456", "credits": 5}
+    "test@example.com": {
+        "email": "test@example.com", 
+        "password": "123456", 
+        "credits": 50,
+        "plan": "free"
+    }
 }
 
 def fake_auth(email: str = "test@example.com"):
