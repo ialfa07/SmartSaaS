@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import axios from 'axios'
@@ -24,12 +23,12 @@ const PricingPage = () => {
   const handleSubscribe = async (planId) => {
     setLoading(true)
     setSelectedPlan(planId)
-    
+
     try {
       const response = await axios.post('http://localhost:8000/create-checkout', {
         plan_id: planId
       })
-      
+
       // Rediriger vers Stripe Checkout
       window.location.href = response.data.checkout_url
     } catch (error) {
@@ -42,6 +41,25 @@ const PricingPage = () => {
   }
 
   const planOrder = ['starter', 'pro', 'premium']
+  
+  const handleChoosePlan = async (planId) => {
+    try {
+      setLoading(true)
+      const response = await axios.post('http://localhost:8000/create-checkout', {
+        plan_id: planId
+      })
+
+      // Redirection vers Stripe Checkout (en démo, on simule)
+      if (response.data.url) {
+        window.location.href = response.data.url + `?session_id=${response.data.id}`
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création du checkout:', error)
+      alert('Erreur lors de la redirection vers le paiement')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
@@ -71,9 +89,9 @@ const PricingPage = () => {
           {planOrder.map((planId, index) => {
             const plan = plans[planId]
             if (!plan) return null
-            
+
             const isPopular = planId === 'pro'
-            
+
             return (
               <motion.div
                 key={planId}
@@ -89,7 +107,7 @@ const PricingPage = () => {
                     ⭐ Plus populaire
                   </div>
                 )}
-                
+
                 <div className={`p-8 ${isPopular ? 'pt-16' : ''}`}>
                   <div className="text-center mb-8">
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -103,7 +121,7 @@ const PricingPage = () => {
                       {plan.credits} crédits inclus
                     </p>
                   </div>
-                  
+
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-center">
@@ -114,24 +132,13 @@ const PricingPage = () => {
                       </li>
                     ))}
                   </ul>
-                  
+
                   <button
-                    onClick={() => handleSubscribe(planId)}
-                    disabled={loading && selectedPlan === planId}
-                    className={`w-full py-3 px-6 rounded-xl font-semibold text-white transition-all duration-300 ${
-                      isPopular
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                        : 'bg-gray-900 hover:bg-gray-800'
-                    } ${loading && selectedPlan === planId ? 'opacity-50 cursor-not-allowed' : 'transform hover:scale-105'}`}
+                    onClick={() => handleChoosePlan(planId)}
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading && selectedPlan === planId ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Chargement...
-                      </div>
-                    ) : (
-                      'Commencer maintenant'
-                    )}
+                    {loading ? 'Redirection...' : 'Choisir ce plan'}
                   </button>
                 </div>
               </motion.div>

@@ -286,46 +286,46 @@ const Dashboard = () => {
         return (
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-                💳 Facturation & Abonnements
+              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+                💳 Facturation & Abonnement
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
-                    Plan actuel
-                  </h3>
-                  <div className="space-y-2">
-                    <p className="text-2xl font-bold text-blue-600">Plan Gratuit</p>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {credits} crédits restants
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => window.open('/pricing', '_blank')}
-                    className="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-                  >
-                    Passer au Premium
-                  </button>
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-800 dark:text-white mb-2">Plan actuel</h3>
+                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">Gratuit</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{credits} crédits restants</p>
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
-                    Historique des paiements
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-600">
-                      <span className="text-gray-600 dark:text-gray-300">Aucun paiement</span>
-                      <span className="text-gray-500 dark:text-gray-400">-</span>
-                    </div>
-                  </div>
+                <div className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-800 dark:text-white mb-2">Utilisation ce mois</h3>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{50 - credits}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">crédits utilisés</p>
                 </div>
               </div>
 
               <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-                  💡 <strong>Astuce:</strong> Passez à un plan premium pour débloquer toutes les fonctionnalités IA et obtenir plus de crédits !
+                <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                  🚀 Passez au plan Pro !
+                </h4>
+                <p className="text-yellow-700 dark:text-yellow-300 text-sm mb-3">
+                  Débloquez plus de fonctionnalités et obtenez 500 crédits par mois
                 </p>
+                <button 
+                  onClick={() => window.open('/pricing', '_blank')}
+                  className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition"
+                >
+                  Voir les plans
+                </button>
+              </div>
+
+              <div className="mt-6">
+                <h4 className="font-semibold text-gray-800 dark:text-white mb-3">Historique des paiements</h4>
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <p className="text-gray-600 dark:text-gray-400 text-center">
+                    Aucune transaction pour le moment
+                  </p>
+                </div>
               </div>
             </div>
           </div>
