@@ -8,6 +8,7 @@ from models import (PromptRequest, UserCreate, UserResponse, PaymentRequest,
                    ImageRequest, MarketingRequest, CalendarRequest, ReferralRequest,
                    create_tables, get_db)
 from stripe_config import create_checkout_session, verify_payment, STRIPE_PLANS
+from email_service import email_service
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
 import os
@@ -16,6 +17,13 @@ import os
 create_tables()
 
 app = FastAPI(title="SmartSaaS API", version="1.0.0")
+
+# Démarrer l'automatisation des emails
+try:
+    from email_scheduler import start_email_automation
+    start_email_automation()
+except ImportError:
+    print("⚠️ Module email_scheduler non trouvé - emails automatiques désactivés")
 
 app.add_middleware(
     CORSMiddleware,
@@ -103,6 +111,13 @@ def register(user_data: UserCreate):
     
     user = db_service.create_user(user_data.email, user_data.password)
     access_token = create_access_token(data={"sub": user.email})
+    
+    # Envoyer l'email de bienvenue
+    try:
+        email_service.send_welcome_email(user.email)
+        print(f"Email de bienvenue envoyé à {user.email}")
+    except Exception as e:
+        print(f"Erreur envoi email bienvenue: {e}")
     
     return {
         "access_token": access_token,
@@ -227,6 +242,17 @@ def claim_daily_reward(current_user = Depends(get_current_user)):
     
     tokens_data = db_service.get_user_saas_tokens(current_user.id)
     
+    # Envoyer notification email pour la récompense
+    try:
+        email_service.send_token_reward_notification(
+            current_user.email, 
+            TOKEN_REWARDS["daily_login"], 
+            "Récompense quotidienne", 
+            tokens_data["balance"]
+        )
+    except Exception as e:
+        print(f"Erreur notification email: {e}")
+    
     return {
         "success": True,
         "reward": TOKEN_REWARDS["daily_login"],
@@ -256,6 +282,16 @@ def refer_user(referral: ReferralRequest, current_user = Depends(get_current_use
     result = db_service.process_referral(current_user.id, referral.referred_email)
 
     if result["success"]:
+        # Envoyer notification email de parrainage réussi
+        try:
+            email_service.send_referral_success(
+                current_user.email, 
+                referral.referred_email, 
+                result["referrer_reward"]
+            )
+        except Exception as e:
+            print(f"Erreur notification parrainage: {e}")
+        
         return {
             "success": True,
             "message": f"Parrainage réussi ! Vous avez gagné {result['referrer_reward']} jetons.",
@@ -375,6 +411,56 @@ def get_available_rewards():
             }
         },
         "exchange_rate": "50 jetons = 1 crédit IA"
+    }
+
+@app.post("/emails/send-welcome")
+def send_welcome_email_manual(email: str, current_user = Depends(get_current_user)):
+    """Envoie manuellement un email de bienvenue (admin)"""
+    try:
+        result = email_service.send_welcome_email(email)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/emails/send-reminder")
+def send_reminder_manual(current_user = Depends(get_current_user)):
+    """Envoie un rappel manuel à l'utilisateur"""
+    try:
+        result = email_service.send_daily_reminder(current_user.email, current_user.credits)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/emails/test")
+def test_email_config():
+    """Teste la configuration email"""
+    test_email = "test@example.com"
+    try:
+        result = email_service.send_email(
+            test_email,
+            "Test SmartSaaS",
+            "<h1>Email de test réussi !</h1><p>La configuration fonctionne correctement.</p>",
+            "Email de test réussi ! La configuration fonctionne correctement."
+        )
+        return {"status": "success", "message": "Configuration email OK", "details": result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/emails/stats")
+def get_email_stats(current_user = Depends(get_current_user)):
+    """Statistiques des emails pour l'utilisateur"""
+    # À implémenter : tracking des emails ouverts, cliqués, etc.
+    return {
+        "emails_sent": 0,
+        "emails_opened": 0,
+        "click_rate": 0,
+        "last_email": None,
+        "preferences": {
+            "welcome_emails": True,
+            "daily_reminders": True,
+            "token_notifications": True,
+            "weekly_reports": True
+        }
     }
 
 if __name__ == "__main__":

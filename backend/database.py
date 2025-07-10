@@ -12,6 +12,29 @@ class DatabaseService:
     def __init__(self):
         self.db = SessionLocal()
     
+    def get_inactive_users(self, days: int = 2):
+        """Récupère les utilisateurs inactifs depuis X jours"""
+        from datetime import datetime, timedelta
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        
+        # Simulation pour la démo
+        return []
+    
+    def get_all_active_users(self):
+        """Récupère tous les utilisateurs actifs"""
+        return self.db.query(User).filter(User.is_active == True).all()
+    
+    def get_user_weekly_stats(self, user_id: int):
+        """Statistiques hebdomadaires d'un utilisateur"""
+        # Simulation pour la démo
+        return {
+            "total_content": 5,
+            "text_generations": 3,
+            "image_generations": 2,
+            "tokens_earned": 15,
+            "new_referrals": 1
+        }
+    
     def get_user_by_email(self, email: str) -> User:
         return self.db.query(User).filter(User.email == email).first()
     
