@@ -1,40 +1,63 @@
-
 import axios from 'axios'
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-repl-url.replit.app' 
-  : 'http://localhost:8000'
+// Configuration dynamique de l'URL de base
+const getAPIBaseURL = () => {
+  if (typeof window !== 'undefined') {
+    // Côté client
+    const hostname = window.location.hostname;
+
+    if (hostname.includes('.replit.app') || hostname.includes('.replit.dev')) {
+      // URL Replit publique
+      return `https://${hostname.replace('-3000', '-8000')}`;
+    } else if (hostname === 'localhost') {
+      // Développement local
+      return 'http://localhost:8000';
+    } else {
+      // Domaine personnalisé
+      return `https://${hostname}:8000`;
+    }
+  }
+
+  // Côté serveur (fallback)
+  return 'http://localhost:8000';
+};
+
+const API_BASE_URL = getAPIBaseURL();
 
 // Instance axios avec configuration par défaut
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
-})
+});
 
 // Intercepteur pour ajouter le token d'authentification
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// Intercepteur pour gérer les erreurs d'authentification
+// Intercepteur pour gérer les erreurs
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('access_token')
-      window.location.href = '/login'
+      localStorage.removeItem('token');
+      window.location.href = '/auth';
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default api
+export default api;
 
 // Fonctions API spécifiques
 export const authAPI = {

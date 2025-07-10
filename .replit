@@ -73,37 +73,27 @@ args = "sleep 5"
 task = "shell.exec"
 args = "cd frontend && npm install && npm run dev"
 
-[[ports]]
-localPort = 3000
-externalPort = 80
+[run]
+args = ["bash", "-c", "cd backend && python main.py"]
+
+[deployment]
+build = ["bash", "-c", "cd backend && pip install -r requirements.txt && cd ../frontend && npm install && npm run build"]
+run = ["bash", "-c", "cd backend && python main.py"]
 
 [[ports]]
 localPort = 8000
 externalPort = 8000
+name = "Backend API"
 
 [[ports]]
-localPort = 33703
-externalPort = 4200
-
-[[ports]]
-localPort = 35289
+localPort = 3000
 externalPort = 3000
+name = "Frontend"
 
 [[ports]]
-localPort = 36603
-externalPort = 3003
+localPort = 5432
+externalPort = 5432
+name = "PostgreSQL"
 
-[[ports]]
-localPort = 42005
-externalPort = 3001
-
-[[ports]]
-localPort = 46279
-externalPort = 3002
-
-[[ports]]
-localPort = 46309
-externalPort = 5000
-
-[deployment]
-run = ["sh", "-c", "node index.js"]
+[env]
+DATABASE_URL = "postgresql://postgres:password@localhost:5432/smartsaas"

@@ -43,9 +43,15 @@ except ImportError:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://*.replit.app",
+        "https://*.replit.dev",
+        "https://*.replit.com",
+        "*"  # Pour le développement
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -640,4 +646,15 @@ def get_email_stats(current_user = Depends(get_current_user)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    # Initialiser la base de données
+    try:
+        from init_db import setup_postgresql, create_tables
+        setup_postgresql()
+        create_tables()
+        print("✅ Base de données initialisée")
+    except Exception as e:
+        print(f"⚠️ Erreur init DB: {e}")
+    
+    # Démarrer le serveur sur 0.0.0.0 pour l'accès externe
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
