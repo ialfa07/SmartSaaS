@@ -673,17 +673,4 @@ def get_email_stats(current_user = Depends(get_current_user)):
         }
     }
 
-if __name__ == "__main__":
-    import uvicorn
-    
-    # Initialiser la base de données
-    try:
-        from init_db import setup_postgresql, create_tables
-        setup_postgresql()
-        create_tables()
-        print("✅ Base de données initialisée")
-    except Exception as e:
-        print(f"⚠️ Erreur init DB: {e}")
-    
-    # Démarrer le serveur sur 0.0.0.0 pour l'accès externe
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+# Point d'entrée déplacé vers start.py pour éviter la redondance
