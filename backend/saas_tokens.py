@@ -24,6 +24,7 @@ referrals = {
 
 # Récompenses par action
 TOKEN_REWARDS = {
+    "welcome_bonus": 100,
     "daily_login": 10,
     "first_generation": 25,
     "share_content": 15,

@@ -1,15 +1,18 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from database import get_db, create_tables, get_user_by_email, create_user, get_user_tokens, add_token_transaction, spend_user_tokens
 from openai_client import generate_text, generate_image, generate_marketing_content, generate_content_calendar
-from auth import fake_auth, users_db, authenticate_user, create_access_token, get_current_user
+from auth import fake_auth, authenticate_user, create_access_token, get_current_user, get_password_hash
 from datetime import timedelta
 from models import PromptRequest, User, PaymentRequest, ImageRequest, MarketingRequest, CalendarRequest, ReferralRequest
 from stripe_config import create_checkout_session, verify_payment, STRIPE_PLANS
-from saas_tokens import (get_user_tokens, add_tokens, spend_tokens,
-                         get_referral_info, process_referral, get_leaderboard,
-                         calculate_level, TOKEN_REWARDS)
+from saas_tokens import (calculate_level, TOKEN_REWARDS)
 
 app = FastAPI()
+
+# Créer les tables au démarrage
+create_tables()
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,9 +23,9 @@ app.add_middleware(
 )
 
 @app.post("/auth/login")
-def login(email: str, password: str):
+def login(email: str, password: str, db: Session = Depends(get_db)):
     """Connexion utilisateur"""
-    user = authenticate_user(email, password)
+    user = authenticate_user(db, email, password)
     if not user:
         raise HTTPException(
             status_code=401,
@@ -30,25 +33,21 @@ def login(email: str, password: str):
         )
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
-        data={"sub": user["email"]}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/auth/register")
-def register(email: str, password: str):
+def register(email: str, password: str, db: Session = Depends(get_db)):
     """Inscription utilisateur"""
-    from auth import get_password_hash
-    if email in users_db:
+    if get_user_by_email(db, email):
         raise HTTPException(status_code=400, detail="Email déjà utilisé")
     
     hashed_password = get_password_hash(password)
-    users_db[email] = {
-        "email": email,
-        "hashed_password": hashed_password,
-        "credits": 5,  # Crédits gratuits
-        "plan": "free",
-        "is_active": True
-    }
+    user = create_user(db, email, hashed_password)
+    
+    # Ajouter bonus d'inscription en jetons
+    add_token_transaction(db, email, TOKEN_REWARDS["welcome_bonus"], "welcome_bonus")
     
     access_token = create_access_token(data={"sub": email})
     return {"access_token": access_token, "token_type": "bearer"}

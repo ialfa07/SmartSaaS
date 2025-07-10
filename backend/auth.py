@@ -14,16 +14,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
-# Base de données utilisateurs temporaire (à remplacer par SQLAlchemy)
-users_db = {
-    "test@example.com": {
-        "email": "test@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # secret
-        "credits": 50,
-        "plan": "free",
-        "is_active": True
-    }
-}
+from database import get_db, get_user_by_email
+from sqlalchemy.orm import Session
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -31,9 +23,9 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def authenticate_user(email: str, password: str):
-    user = users_db.get(email)
-    if not user or not verify_password(password, user["hashed_password"]):
+def authenticate_user(db: Session, email: str, password: str):
+    user = get_user_by_email(db, email)
+    if not user or not verify_password(password, user.hashed_password):
         return False
     return user
 
@@ -47,7 +39,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -62,11 +54,11 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     except JWTError:
         raise credentials_exception
     
-    user = users_db.get(email)
+    user = get_user_by_email(db, email)
     if user is None:
         raise credentials_exception
     return user
 
-# Fonction temporaire pour compatibilité
+# Fonction temporaire pour compatibilité avec tests
 def fake_auth():
     return {"email": "test@example.com"}
