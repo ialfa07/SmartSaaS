@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from openai_client import generate_text, generate_image, generate_marketing_content, generate_content_calendar
-from auth import fake_auth, users_db
+from auth import fake_auth, users_db, authenticate_user, create_access_token, get_current_user
+from datetime import timedelta
 from models import PromptRequest, User, PaymentRequest, ImageRequest, MarketingRequest, CalendarRequest, ReferralRequest
 from stripe_config import create_checkout_session, verify_payment, STRIPE_PLANS
 from saas_tokens import (get_user_tokens, add_tokens, spend_tokens,
@@ -17,6 +18,40 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.post("/auth/login")
+def login(email: str, password: str):
+    """Connexion utilisateur"""
+    user = authenticate_user(email, password)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Email ou mot de passe incorrect"
+        )
+    access_token_expires = timedelta(minutes=30)
+    access_token = create_access_token(
+        data={"sub": user["email"]}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/auth/register")
+def register(email: str, password: str):
+    """Inscription utilisateur"""
+    from auth import get_password_hash
+    if email in users_db:
+        raise HTTPException(status_code=400, detail="Email déjà utilisé")
+    
+    hashed_password = get_password_hash(password)
+    users_db[email] = {
+        "email": email,
+        "hashed_password": hashed_password,
+        "credits": 5,  # Crédits gratuits
+        "plan": "free",
+        "is_active": True
+    }
+    
+    access_token = create_access_token(data={"sub": email})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @app.post("/generate")
