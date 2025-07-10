@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -22,3 +23,14 @@ class MarketingRequest(BaseModel):
 class CalendarRequest(BaseModel):
     business_type: str
     duration_days: int = 30
+
+class TokenReward(BaseModel):
+    action: str
+    tokens: int
+
+class ReferralRequest(BaseModel):
+    referred_email: str
+
+class TokenTransfer(BaseModel):
+    to_email: str
+    amount: int
