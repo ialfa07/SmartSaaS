@@ -14,3 +14,31 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd frontend && npm install && npm run dev"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[[ports]]
+localPort = 35289
+externalPort = 3000
+
+[[ports]]
+localPort = 42005
+externalPort = 3001
+
+[[ports]]
+localPort = 44079
+externalPort = 3003
+
+[[ports]]
+localPort = 44887
+externalPort = 5000
+
+[[ports]]
+localPort = 45287
+externalPort = 4200
+
+[[ports]]
+localPort = 46279
+externalPort = 3002
