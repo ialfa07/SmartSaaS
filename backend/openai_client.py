@@ -1,7 +1,10 @@
-
+import openai
 import os
 from typing import Dict, List
 import json
+
+# Configuration OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Clé API OpenAI (à configurer dans les secrets)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "sk-fake-key-for-demo")
@@ -22,7 +25,7 @@ def generate_text(prompt: str, max_tokens: int = 500) -> str:
 Quelle tendance vous inspire le plus pour cette année ?
 
 #Marketing2024 #IA #Innovation #DigitalMarketing #Tendances"""
-        
+
         elif "restaurant" in prompt.lower():
             return """🍽️ Découvrez notre nouveau menu de saison !
 
@@ -31,14 +34,14 @@ Des plats préparés avec des ingrédients frais et locaux, pour une expérience
 Réservez dès maintenant et laissez-vous surprendre par nos créations !
 
 #Restaurant #CuisineFraiche #MenuDeSaison"""
-        
+
         else:
             return f"""Voici du contenu généré basé sur votre demande : "{prompt[:50]}..."
 
 Ce contenu a été créé pour répondre à vos besoins marketing spécifiques. Il est optimisé pour l'engagement et conçu pour votre audience cible.
 
 N'hésitez pas à l'adapter selon vos besoins !"""
-            
+
     except Exception as e:
         return f"Erreur lors de la génération : {str(e)}"
 
@@ -61,7 +64,7 @@ def generate_image(prompt: str, size: str = "1024x1024", quality: str = "standar
 
 def generate_marketing_content(business_type: str, target_audience: str, platform: str) -> Dict:
     """Génère du contenu marketing adapté"""
-    
+
     try:
         # Génération du texte principal
         if platform == "instagram":
@@ -72,7 +75,7 @@ Spécialement conçu pour {target_audience}, nous savons ce qui vous fait vibrer
 Découvrez notre univers et rejoignez notre communauté ! 
 
 #Instagram #Marketing #{business_type.replace(' ', '')}"""
-            
+
         elif platform == "linkedin":
             text_content = f"""🚀 Comment {business_type} révolutionne l'expérience client
 
@@ -81,7 +84,7 @@ Notre approche centrée sur {target_audience} nous permet de créer des solution
 Découvrez notre vision et partagez votre avis en commentaire !
 
 #LinkedIn #Innovation #Business"""
-            
+
         else:
             text_content = f"""Nouveau chez {business_type} ! 
 
@@ -91,7 +94,7 @@ Suivez-nous pour plus de contenus exclusifs !"""
 
         # Génération de l'image
         image_result = generate_image(f"Marketing visuel moderne pour {business_type}, style professionnel, couleurs attrayantes")
-        
+
         # Génération de la légende
         caption = f"""🎯 Contenu spécialement créé pour {target_audience}
 
@@ -100,7 +103,7 @@ Suivez-nous pour plus de contenus exclusifs !"""
 ✅ Call-to-action intégré
 
 #Marketing #IA #{platform.title()} #{business_type.replace(' ', '')}"""
-        
+
         return {
             "success": True,
             "content": {
@@ -120,7 +123,7 @@ Suivez-nous pour plus de contenus exclusifs !"""
 
 def generate_content_calendar(business_type: str, duration_days: int = 30) -> Dict:
     """Génère un calendrier de contenu pour X jours"""
-    
+
     try:
         calendar_content = f"""📅 CALENDRIER DE CONTENU - {business_type.upper()} ({duration_days} jours)
 

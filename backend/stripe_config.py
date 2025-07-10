@@ -164,3 +164,81 @@ def verify_payment(session_id: str) -> Dict:
             
     except Exception as e:
         raise Exception(f"Erreur vérification: {str(e)}")
+import stripe
+import os
+from typing import Dict
+
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+STRIPE_PLANS = {
+    "starter": {
+        "price_id": "price_starter_monthly",
+        "name": "Starter",
+        "price": 900,  # 9€ en centimes
+        "credits": 100,
+        "features": ["100 générations IA", "Support email", "Jetons SaaS bonus"]
+    },
+    "pro": {
+        "price_id": "price_pro_monthly", 
+        "name": "Pro",
+        "price": 2900,  # 29€ en centimes
+        "credits": 1000,
+        "features": ["Générations illimitées", "Branding personnalisé", "Support prioritaire", "API access"]
+    },
+    "business": {
+        "price_id": "price_business_monthly",
+        "name": "Business", 
+        "price": 9900,  # 99€ en centimes
+        "credits": 5000,
+        "features": ["Multi-comptes", "Export CSV/API", "Jetons SaaS premium", "Support dédié"]
+    }
+}
+
+def create_checkout_session(customer_email: str, plan_id: str) -> Dict:
+    """Crée une session de paiement Stripe"""
+    try:
+        plan = STRIPE_PLANS[plan_id]
+        
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            customer_email=customer_email,
+            line_items=[{
+                'price': plan['price_id'],
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url='https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url='https://yourdomain.com/pricing',
+            metadata={
+                'plan_id': plan_id,
+                'customer_email': customer_email
+            }
+        )
+        
+        return {
+            "success": True,
+            "session_id": session.id,
+            "url": session.url
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+def verify_payment(session_id: str) -> Dict:
+    """Vérifie le statut d'un paiement"""
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+        
+        return {
+            "status": "paid" if session.payment_status == "paid" else "pending",
+            "plan_id": session.metadata.get("plan_id"),
+            "customer_email": session.metadata.get("customer_email"),
+            "amount": session.amount_total
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }
