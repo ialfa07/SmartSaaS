@@ -1,73 +1,35 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useAuth } from '../contexts/AuthContext'
+import { useRouter } from 'next/router'
 
-const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('generate')
-  const [prompt, setPrompt] = useState("")
-  const [response, setResponse] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [credits, setCredits] = useState(5)
-  const [isDark, setIsDark] = useState(false)
+export default function Home() {
+  const { user, logout } = useAuth()
+  const router = useRouter()
+  const [activeSection, setActiveSection] = useState('generate')
+  const [isDark, setIsDark] = useState(true)
+  const [currentTheme, setCurrentTheme] = useState('cyberpunk')
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
-  // Nouveaux états pour Phase 3
-  const [imagePrompt, setImagePrompt] = useState('')
-  const [generatedImage, setGeneratedImage] = useState(null)
-  const [imageLoading, setImageLoading] = useState(false)
-  const [marketingData, setMarketingData] = useState({
-    businessType: '',
-    targetAudience: '',
-    platform: 'instagram'
-  })
-  const [marketingResult, setMarketingResult] = useState(null)
-  const [marketingLoading, setMarketingLoading] = useState(false)
-
-  const handleGenerate = async () => {
-    setLoading(true)
-    try {
-      const res = await axios.post("http://localhost:8000/generate", {
-        prompt: prompt
-      })
-      setResponse(res.data.result)
-      setCredits(res.data.credits_left)
-    } catch (error) {
-      console.error(error)
-      setResponse("Erreur lors de la génération.")
-    } finally {
-      setLoading(false)
-    }
+  // Thèmes disponibles
+  const themes = {
+    cyberpunk: { name: 'Cyberpunk Dark', emoji: '🌆', desc: 'Futuriste et néon' },
+    minimal: { name: 'Minimal Light', emoji: '☀️', desc: 'Épuré et moderne' },
+    ocean: { name: 'Ocean Blue', emoji: '🌊', desc: 'Profondeur marine' },
+    forest: { name: 'Forest Green', emoji: '🌲', desc: 'Nature et zen' },
+    sunset: { name: 'Sunset Warm', emoji: '🌅', desc: 'Chaleur dorée' },
+    galaxy: { name: 'Purple Galaxy', emoji: '🌌', desc: 'Cosmos mystique' }
   }
 
-  const generateImage = async () => {
-    if (!imagePrompt.trim()) return
-
-    setImageLoading(true)
-    try {
-      const response = await axios.post('http://localhost:8000/generate-image', {
-        prompt: imagePrompt,
-        size: "1024x1024",
-        quality: "standard"
-      })
-      setGeneratedImage(response.data)
-      setCredits(response.data.credits_left)
-    } catch (error) {
-      console.error('Erreur:', error)
+  useEffect(() => {
+    if (!user) {
+      router.push('/auth')
     }
-    setImageLoading(false)
-  }
+  }, [user, router])
 
-  const generateMarketingContent = async () => {
-    if (!marketingData.businessType || !marketingData.targetAudience) return
-
-    setMarketingLoading(true)
-    try {
-      const response = await axios.post('http://localhost:8000/generate-marketing-content', marketingData)
-      setMarketingResult(response.data)
-      setCredits(response.data.credits_left)
-    } catch (error) {
-      console.error('Erreur:', error)
-    }
-    setMarketingLoading(false)
-  }
+  useEffect(() => {
+    // Appliquer le thème
+    document.documentElement.className = `theme-${currentTheme}`
+  }, [currentTheme])
 
   const sidebarItems = [
     { id: 'generate', icon: '🤖', label: 'Générateur IA', desc: 'Créez du contenu avec IA' },
@@ -79,365 +41,220 @@ const Dashboard = () => {
     { id: 'tokens', icon: '🪙', label: 'Tokens SaaS', desc: 'Gérez vos jetons' },
     { id: 'referral', icon: '👥', label: 'Parrainage', desc: 'Invitez des amis' },
     { id: 'settings', icon: '⚙️', label: 'Paramètres', desc: 'Configuration' },
-    { id: 'billing', icon: '💳', label: 'Facturation', desc: 'Abonnements et paiements' },
+    { id: 'billing', icon: '💳', label: 'Facturation', desc: 'Abonnements & paiements' }
   ]
 
   const renderContent = () => {
-    switch(activeTab) {
+    switch(activeSection) {
       case 'generate':
         return (
           <div className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
-                🤖 Générateur de contenu IA
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Décrivez ce que vous voulez créer
-                  </label>
-                  <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    rows={4}
-                    placeholder="Ex: Écris un post LinkedIn sur les tendances marketing 2024..."
-                  />
-                </div>
-                <button
-                  onClick={handleGenerate}
-                  disabled={loading || credits <= 0}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Génération en cours...
-                    </div>
-                  ) : (
-                    `Générer (${credits} crédits restants)`
-                  )}
-                </button>
-              </div>
-            </div>
+            <div className="glass-card p-8 floating-animation">
+              <h2 className="text-3xl font-bold gradient-text mb-4">🤖 Générateur de Contenu IA</h2>
+              <p className="text-lg mb-6 opacity-80">Créez du contenu engageant avec l'intelligence artificielle</p>
 
-            {response && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg animate-fadeIn">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
-                  ✨ Résultat généré
-                </h3>
-                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{response}</p>
-                </div>
-                <div className="mt-4 flex gap-2">
-                  <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                    📋 Copier
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="card p-6 hover:scale-105 transition-transform pulse-glow">
+                  <div className="text-4xl mb-4">📝</div>
+                  <h3 className="text-xl font-semibold mb-2">Articles de Blog</h3>
+                  <p className="opacity-70">Générez des articles optimisés SEO</p>
+                  <button className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:shadow-lg transition-all">
+                    Créer
                   </button>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    📤 Partager
+                </div>
+
+                <div className="card p-6 hover:scale-105 transition-transform pulse-glow">
+                  <div className="text-4xl mb-4">📱</div>
+                  <h3 className="text-xl font-semibold mb-2">Posts Sociaux</h3>
+                  <p className="opacity-70">Contenu viral pour vos réseaux</p>
+                  <button className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:shadow-lg transition-all">
+                    Générer
+                  </button>
+                </div>
+
+                <div className="card p-6 hover:scale-105 transition-transform pulse-glow">
+                  <div className="text-4xl mb-4">✉️</div>
+                  <h3 className="text-xl font-semibold mb-2">Emails Marketing</h3>
+                  <p className="opacity-70">Campagnes qui convertissent</p>
+                  <button className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:shadow-lg transition-all">
+                    Lancer
                   </button>
                 </div>
               </div>
-            )}
-          </div>
-        )
-      case 'images':
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">🎨 Génération d'Images IA</h2>
-
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <h3 className="text-lg font-semibold mb-4">Créer une image avec DALL-E 3</h3>
-              <div className="space-y-4">
-                <textarea
-                  value={imagePrompt}
-                  onChange={(e) => setImagePrompt(e.target.value)}
-                  placeholder="Décrivez l'image que vous souhaitez générer... (ex: Une illustration moderne d'un bureau de startup avec des couleurs vives)"
-                  className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
-                  rows="3"
-                />
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">Coût: 3 crédits par image</span>
-                  <button
-                    onClick={generateImage}
-                    disabled={imageLoading || !imagePrompt.trim()}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-                  >
-                    {imageLoading ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Génération...
-                      </div>
-                    ) : (
-                      '🎨 Générer l\'image'
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {generatedImage && generatedImage.success && (
-                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <h4 className="font-semibold mb-2">Image générée :</h4>
-                  <img 
-                    src={generatedImage.image_url} 
-                    alt="Image générée par IA"
-                    className="max-w-full h-auto rounded-lg shadow-md"
-                  />
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                    Prompt: {generatedImage.prompt}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         )
-      case 'calendar':
+
+      case 'tokens':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold">📅 Générateur Marketing Complet</h2>
-
-            {/* Générateur de contenu marketing */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <h3 className="text-lg font-semibold mb-4">🚀 Contenu Marketing Automatisé</h3>
-              <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Type d'entreprise</label>
-                  <input
-                    type="text"
-                    value={marketingData.businessType}
-                    onChange={(e) => setMarketingData({...marketingData, businessType: e.target.value})}
-                    placeholder="ex: Restaurant, E-commerce, SaaS..."
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700"
-                  />
+            <div className="glass-card p-8 floating-animation">
+              <h2 className="text-3xl font-bold gradient-text mb-4">🪙 Tokens SaaS</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="card p-6 text-center pulse-glow">
+                  <div className="text-5xl mb-4">💰</div>
+                  <h3 className="text-2xl font-bold">1,250</h3>
+                  <p className="opacity-70">Tokens disponibles</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Audience cible</label>
-                  <input
-                    type="text"
-                    value={marketingData.targetAudience}
-                    onChange={(e) => setMarketingData({...marketingData, targetAudience: e.target.value})}
-                    placeholder="ex: Jeunes entrepreneurs, Familles..."
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700"
-                  />
+                <div className="card p-6 text-center pulse-glow">
+                  <div className="text-5xl mb-4">🎯</div>
+                  <h3 className="text-2xl font-bold">875</h3>
+                  <p className="opacity-70">Tokens utilisés</p>
+                </div>
+                <div className="card p-6 text-center pulse-glow">
+                  <div className="text-5xl mb-4">⭐</div>
+                  <h3 className="text-2xl font-bold">Niveau 3</h3>
+                  <p className="opacity-70">Statut premium</p>
                 </div>
               </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Plateforme</label>
-                <select
-                  value={marketingData.platform}
-                  onChange={(e) => setMarketingData({...marketingData, platform: e.target.value})}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700"
-                >
-                  <option value="instagram">📸 Instagram</option>
-                  <option value="facebook">👥 Facebook</option>
-                  <option value="linkedin">💼 LinkedIn</option>
-                  <option value="twitter">🐦 Twitter/X</option>
-                  <option value="tiktok">🎵 TikTok</option>
-                </select>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500">Coût: 5 crédits (texte + image + légende)</span>
-                <button
-                  onClick={generateMarketingContent}
-                  disabled={marketingLoading || !marketingData.businessType || !marketingData.targetAudience}
-                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-                >
-                  {marketingLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Génération...
-                    </div>
-                  ) : (
-                    '🚀 Générer le contenu'
-                  )}
-                </button>
-              </div>
-
-              {marketingResult && marketingResult.success && (
-                <div className="mt-6 space-y-4">
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">📝 Texte du post :</h4>
-                    <p className="text-blue-700 dark:text-blue-300">{marketingResult.content.text}</p>
-                  </div>
-
-                  {marketingResult.content.image.success && (
-                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">🎨 Image générée :</h4>
-                      <img 
-                        src={marketingResult.content.image.image_url} 
-                        alt="Image marketing"
-                        className="max-w-full h-auto rounded-lg shadow-md"
-                      />
-                    </div>
-                  )}
-
-                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">✨ Légende optimisée :</h4>
-                    <p className="text-green-700 dark:text-green-300">{marketingResult.content.caption}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      case 'billing':
-        return (
-          <div className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
-                💳 Facturation & Abonnement
-              </h2>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-800 dark:text-white mb-2">Plan actuel</h3>
-                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">Gratuit</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{credits} crédits restants</p>
-                </div>
-
-                <div className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-800 dark:text-white mb-2">Utilisation ce mois</h3>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{50 - credits}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">crédits utilisés</p>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
-                  🚀 Passez au plan Pro !
-                </h4>
-                <p className="text-yellow-700 dark:text-yellow-300 text-sm mb-3">
-                  Débloquez plus de fonctionnalités et obtenez 500 crédits par mois
-                </p>
-                <button 
-                  onClick={() => window.open('/pricing', '_blank')}
-                  className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition"
-                >
-                  Voir les plans
-                </button>
-              </div>
-
-              <div className="mt-6">
-                <h4 className="font-semibold text-gray-800 dark:text-white mb-3">Historique des paiements</h4>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <p className="text-gray-600 dark:text-gray-400 text-center">
-                    Aucune transaction pour le moment
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      case 'settings':
-        return (
-          <div className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
-                ⚙️ Paramètres
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Configuration de votre compte et préférences.
-              </p>
             </div>
           </div>
         )
 
       default:
         return (
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg text-center">
-            <div className="text-6xl mb-4">{sidebarItems.find(item => item.id === activeTab)?.icon}</div>
-            <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">
-              {sidebarItems.find(item => item.id === activeTab)?.label}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Cette fonctionnalité sera bientôt disponible !
-            </p>
-            <div className="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 p-4 rounded-lg">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                🚀 En développement - Restez connecté pour les mises à jour !
-              </p>
-            </div>
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4 floating-animation">🚀</div>
+            <h2 className="text-3xl font-bold gradient-text mb-4">Fonctionnalité en développement</h2>
+            <p className="text-xl opacity-70">Cette section sera bientôt disponible !</p>
           </div>
         )
     }
   }
 
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="spinner"></div>
+    </div>
+  }
+
   return (
-    <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
-      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen flex">
+    <div className={`min-h-screen theme-${currentTheme}`}>
+      <div className="bg-gradient-to-br from-gray-900 to-black min-h-screen flex">
+
         {/* Sidebar */}
-        <div className="w-64 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              SmartSaaS
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Plateforme Marketing IA
-            </p>
+        <div className={`${sidebarOpen ? 'w-80' : 'w-20'} transition-all duration-300 bg-gradient-to-b from-gray-800 to-gray-900 border-r border-opacity-20`}>
+
+          {/* Header Sidebar */}
+          <div className="p-6 border-b border-opacity-20">
+            <div className="flex items-center justify-between">
+              <div className={`${sidebarOpen ? 'block' : 'hidden'}`}>
+                <h1 className="text-2xl font-bold gradient-text">SmartSaaS</h1>
+                <p className="text-sm opacity-60">Marketing IA Platform</p>
+              </div>
+              <button 
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-all"
+              >
+                {sidebarOpen ? '◀' : '▶'}
+              </button>
+            </div>
           </div>
 
-          <nav className="mt-6 px-3">
+          {/* User Info */}
+          <div className="p-4 border-b border-opacity-20">
+            <div className={`flex items-center space-x-3 ${sidebarOpen ? '' : 'justify-center'}`}>
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold">{user.email[0].toUpperCase()}</span>
+              </div>
+              {sidebarOpen && (
+                <div>
+                  <p className="font-medium text-sm">{user.email}</p>
+                  <p className="text-xs opacity-60">Premium User</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="p-4 space-y-2">
             {sidebarItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center px-3 py-3 mb-2 rounded-lg transition-all duration-200 ${
-                  activeTab === item.id
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all hover:bg-white hover:bg-opacity-10 ${
+                  activeSection === item.id ? 'bg-white bg-opacity-20 border border-opacity-30' : ''
+                } ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
               >
-                <span className="text-2xl mr-3">{item.icon}</span>
-                <div className="text-left">
-                  <div className="font-medium">{item.label}</div>
-                  <div className="text-xs opacity-75">{item.desc}</div>
-                </div>
+                <span className="text-xl">{item.icon}</span>
+                {sidebarOpen && (
+                  <div className="text-left">
+                    <p className="font-medium text-sm">{item.label}</p>
+                    <p className="text-xs opacity-60">{item.desc}</p>
+                  </div>
+                )}
               </button>
             ))}
-          </nav>
+          </div>
+
+          {/* Theme Selector */}
+          {sidebarOpen && (
+            <div className="p-4 border-t border-opacity-20">
+              <h3 className="text-sm font-semibold mb-3 opacity-80">🎨 Thèmes</h3>
+              <div className="space-y-2">
+                {Object.entries(themes).map(([key, theme]) => (
+                  <button
+                    key={key}
+                    onClick={() => setCurrentTheme(key)}
+                    className={`w-full flex items-center space-x-2 p-2 rounded text-xs transition-all hover:bg-white hover:bg-opacity-10 ${
+                      currentTheme === key ? 'bg-white bg-opacity-20' : ''
+                    }`}
+                  >
+                    <span>{theme.emoji}</span>
+                    <div className="text-left">
+                      <p className="font-medium">{theme.name}</p>
+                      <p className="opacity-60">{theme.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Logout */}
+          <div className="absolute bottom-4 left-4 right-4">
+            <button 
+              onClick={logout}
+              className={`w-full flex items-center space-x-3 p-3 rounded-lg bg-red-600 hover:bg-red-700 transition-all ${
+                sidebarOpen ? 'justify-start' : 'justify-center'
+              }`}
+            >
+              <span>🚪</span>
+              {sidebarOpen && <span className="font-medium">Déconnexion</span>}
+            </button>
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        {/* Contenu principal */}
+        <div className="flex-1 overflow-auto">
           {/* Header */}
-          <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="p-6 border-b border-opacity-20 bg-gradient-to-r from-transparent to-white to-transparent bg-opacity-5">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                  {sidebarItems.find(item => item.id === activeTab)?.label}
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {sidebarItems.find(item => item.id === activeTab)?.desc}
+                <h1 className="text-3xl font-bold gradient-text">
+                  {sidebarItems.find(item => item.id === activeSection)?.label}
+                </h1>
+                <p className="opacity-70">
+                  {sidebarItems.find(item => item.id === activeSection)?.desc}
                 </p>
               </div>
-
-              <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg">
-                  💳 {credits} crédits
+              <div className="flex items-center space-x-4">
+                <div className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 rounded-full text-sm font-medium">
+                  🟢 En ligne
                 </div>
-                <button
-                  onClick={() => setIsDark(!isDark)}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  {isDark ? '☀️' : '🌙'}
-                </button>
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                  U
+                <div className="text-sm opacity-70">
+                  {new Date().toLocaleDateString('fr-FR')}
                 </div>
               </div>
             </div>
-          </header>
+          </div>
 
-          {/* Content Area */}
-          <main className="flex-1 p-6">
+          {/* Contenu */}
+          <div className="p-6">
             {renderContent()}
-          </main>
+          </div>
         </div>
       </div>
     </div>
   )
 }
-
-export default Dashboard
