@@ -4,7 +4,7 @@ modules = ["bash", "python-3.12", "nodejs-20", "web"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Frontend Dev"
+runButton = "Full Stack Dev"
 
 [[workflows.workflow]]
 name = "Frontend Dev"
@@ -24,6 +24,19 @@ mode = "sequential"
 task = "shell.exec"
 args = "cd backend && python main.py"
 
+[[workflows.workflow]]
+name = "Full Stack Dev"
+author = 44765265
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm install && npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && python main.py"
+
 [[ports]]
 localPort = 3000
 externalPort = 80
@@ -31,18 +44,6 @@ externalPort = 80
 [[ports]]
 localPort = 35289
 externalPort = 3000
-
-[[ports]]
-localPort = 37897
-externalPort = 5000
-
-[[ports]]
-localPort = 38803
-externalPort = 3003
-
-[[ports]]
-localPort = 39313
-externalPort = 4200
 
 [[ports]]
 localPort = 42005

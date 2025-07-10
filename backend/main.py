@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from openai_client import generate_text
+from openai_client import generate_text, generate_image, generate_marketing_content, generate_content_calendar
 from auth import fake_auth, users_db
-from models import PromptRequest, User, PaymentRequest
+from models import PromptRequest, User, PaymentRequest, ImageRequest, MarketingRequest, CalendarRequest
 from stripe_config import create_checkout_session, verify_payment, STRIPE_PLANS
 
 app = FastAPI()
@@ -61,3 +61,57 @@ def get_user_info(user: User = Depends(fake_auth)):
         "credits": user_data["credits"],
         "plan": user_data.get("plan", "free")
     }
+
+@app.post("/generate-image")
+def generate_image_endpoint(request: ImageRequest, user: User = Depends(fake_auth)):
+    """Génère une image avec DALL-E"""
+    if users_db[user.email]["credits"] < 3:  # 3 crédits pour une image
+        raise HTTPException(status_code=403, detail="Not enough credits (3 required)")
+    
+    result = generate_image(request.prompt, request.size, request.quality)
+    if result["success"]:
+        users_db[user.email]["credits"] -= 3
+        return {
+            **result,
+            "credits_left": users_db[user.email]["credits"]
+        }
+    else:
+        raise HTTPException(status_code=400, detail=result["error"])
+
+@app.post("/generate-marketing-content")
+def generate_marketing_endpoint(request: MarketingRequest, user: User = Depends(fake_auth)):
+    """Génère du contenu marketing complet"""
+    if users_db[user.email]["credits"] < 5:  # 5 crédits pour contenu complet
+        raise HTTPException(status_code=403, detail="Not enough credits (5 required)")
+    
+    result = generate_marketing_content(
+        request.business_type, 
+        request.target_audience, 
+        request.platform
+    )
+    
+    if result["success"]:
+        users_db[user.email]["credits"] -= 5
+        return {
+            **result,
+            "credits_left": users_db[user.email]["credits"]
+        }
+    else:
+        raise HTTPException(status_code=400, detail=result["error"])
+
+@app.post("/generate-calendar")
+def generate_calendar_endpoint(request: CalendarRequest, user: User = Depends(fake_auth)):
+    """Génère un calendrier de contenu"""
+    if users_db[user.email]["credits"] < 10:  # 10 crédits pour calendrier
+        raise HTTPException(status_code=403, detail="Not enough credits (10 required)")
+    
+    result = generate_content_calendar(request.business_type, request.duration_days)
+    
+    if result["success"]:
+        users_db[user.email]["credits"] -= 10
+        return {
+            **result,
+            "credits_left": users_db[user.email]["credits"]
+        }
+    else:
+        raise HTTPException(status_code=400, detail=result["error"])

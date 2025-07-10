@@ -9,6 +9,18 @@ const Dashboard = () => {
   const [credits, setCredits] = useState(5)
   const [isDark, setIsDark] = useState(false)
 
+  // Nouveaux états pour Phase 3
+  const [imagePrompt, setImagePrompt] = useState('')
+  const [generatedImage, setGeneratedImage] = useState(null)
+  const [imageLoading, setImageLoading] = useState(false)
+  const [marketingData, setMarketingData] = useState({
+    businessType: '',
+    targetAudience: '',
+    platform: 'instagram'
+  })
+  const [marketingResult, setMarketingResult] = useState(null)
+  const [marketingLoading, setMarketingLoading] = useState(false)
+
   const handleGenerate = async () => {
     setLoading(true)
     try {
@@ -23,6 +35,38 @@ const Dashboard = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const generateImage = async () => {
+    if (!imagePrompt.trim()) return
+
+    setImageLoading(true)
+    try {
+      const response = await axios.post('http://localhost:8000/generate-image', {
+        prompt: imagePrompt,
+        size: "1024x1024",
+        quality: "standard"
+      })
+      setGeneratedImage(response.data)
+      setCredits(response.data.credits_left)
+    } catch (error) {
+      console.error('Erreur:', error)
+    }
+    setImageLoading(false)
+  }
+
+  const generateMarketingContent = async () => {
+    if (!marketingData.businessType || !marketingData.targetAudience) return
+
+    setMarketingLoading(true)
+    try {
+      const response = await axios.post('http://localhost:8000/generate-marketing-content', marketingData)
+      setMarketingResult(response.data)
+      setCredits(response.data.credits_left)
+    } catch (error) {
+      console.error('Erreur:', error)
+    }
+    setMarketingLoading(false)
   }
 
   const sidebarItems = [
@@ -95,6 +139,147 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
+          </div>
+        )
+      case 'images':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">🎨 Génération d'Images IA</h2>
+
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold mb-4">Créer une image avec DALL-E 3</h3>
+              <div className="space-y-4">
+                <textarea
+                  value={imagePrompt}
+                  onChange={(e) => setImagePrompt(e.target.value)}
+                  placeholder="Décrivez l'image que vous souhaitez générer... (ex: Une illustration moderne d'un bureau de startup avec des couleurs vives)"
+                  className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+                  rows="3"
+                />
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500">Coût: 3 crédits par image</span>
+                  <button
+                    onClick={generateImage}
+                    disabled={imageLoading || !imagePrompt.trim()}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  >
+                    {imageLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Génération...
+                      </div>
+                    ) : (
+                      '🎨 Générer l\'image'
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {generatedImage && generatedImage.success && (
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <h4 className="font-semibold mb-2">Image générée :</h4>
+                  <img 
+                    src={generatedImage.image_url} 
+                    alt="Image générée par IA"
+                    className="max-w-full h-auto rounded-lg shadow-md"
+                  />
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                    Prompt: {generatedImage.prompt}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      case 'calendar':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">📅 Générateur Marketing Complet</h2>
+
+            {/* Générateur de contenu marketing */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold mb-4">🚀 Contenu Marketing Automatisé</h3>
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Type d'entreprise</label>
+                  <input
+                    type="text"
+                    value={marketingData.businessType}
+                    onChange={(e) => setMarketingData({...marketingData, businessType: e.target.value})}
+                    placeholder="ex: Restaurant, E-commerce, SaaS..."
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Audience cible</label>
+                  <input
+                    type="text"
+                    value={marketingData.targetAudience}
+                    onChange={(e) => setMarketingData({...marketingData, targetAudience: e.target.value})}
+                    placeholder="ex: Jeunes entrepreneurs, Familles..."
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Plateforme</label>
+                <select
+                  value={marketingData.platform}
+                  onChange={(e) => setMarketingData({...marketingData, platform: e.target.value})}
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700"
+                >
+                  <option value="instagram">📸 Instagram</option>
+                  <option value="facebook">👥 Facebook</option>
+                  <option value="linkedin">💼 LinkedIn</option>
+                  <option value="twitter">🐦 Twitter/X</option>
+                  <option value="tiktok">🎵 TikTok</option>
+                </select>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">Coût: 5 crédits (texte + image + légende)</span>
+                <button
+                  onClick={generateMarketingContent}
+                  disabled={marketingLoading || !marketingData.businessType || !marketingData.targetAudience}
+                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                >
+                  {marketingLoading ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Génération...
+                    </div>
+                  ) : (
+                    '🚀 Générer le contenu'
+                  )}
+                </button>
+              </div>
+
+              {marketingResult && marketingResult.success && (
+                <div className="mt-6 space-y-4">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">📝 Texte du post :</h4>
+                    <p className="text-blue-700 dark:text-blue-300">{marketingResult.content.text}</p>
+                  </div>
+
+                  {marketingResult.content.image.success && (
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">🎨 Image générée :</h4>
+                      <img 
+                        src={marketingResult.content.image.image_url} 
+                        alt="Image marketing"
+                        className="max-w-full h-auto rounded-lg shadow-md"
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">✨ Légende optimisée :</h4>
+                    <p className="text-green-700 dark:text-green-300">{marketingResult.content.caption}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )
       case 'billing':
