@@ -1,260 +1,253 @@
+
 import { useState, useEffect } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import { useRouter } from 'next/router'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+
+const themes = [
+  {
+    name: 'Dark Modern',
+    class: 'theme-dark-modern',
+    description: 'Sombre et moderne avec des accents bleus/violets',
+    preview: { bg: '#0f172a', accent: '#6366f1' }
+  },
+  {
+    name: 'Cyber Neon',
+    class: 'theme-cyber-neon', 
+    description: 'Style cyberpunk avec des néons verts/roses',
+    preview: { bg: '#0a0a0a', accent: '#00ff88' }
+  },
+  {
+    name: 'Sunset Gradient',
+    class: 'theme-sunset',
+    description: 'Dégradé coucher de soleil orange/violet',
+    preview: { bg: '#1e1b4b', accent: '#f97316' }
+  },
+  {
+    name: 'Ocean Deep',
+    class: 'theme-ocean',
+    description: 'Bleu océan profond avec des tons aquatiques',
+    preview: { bg: '#0c4a6e', accent: '#0ea5e9' }
+  },
+  {
+    name: 'Minimalist White',
+    class: 'theme-minimal-white',
+    description: 'Blanc minimaliste avec touches de couleur',
+    preview: { bg: '#ffffff', accent: '#3b82f6' }
+  }
+]
 
 export default function Home() {
-  const { user, logout } = useAuth()
-  const router = useRouter()
-  const [activeSection, setActiveSection] = useState('generate')
-  const [isDark, setIsDark] = useState(true)
-  const [currentTheme, setCurrentTheme] = useState('cyberpunk')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [currentTheme, setCurrentTheme] = useState(themes[0])
+  const [isAnimating, setIsAnimating] = useState(false)
 
-  // Thèmes disponibles
-  const themes = {
-    cyberpunk: { name: 'Cyberpunk Dark', emoji: '🌆', desc: 'Futuriste et néon' },
-    minimal: { name: 'Minimal Light', emoji: '☀️', desc: 'Épuré et moderne' },
-    ocean: { name: 'Ocean Blue', emoji: '🌊', desc: 'Profondeur marine' },
-    forest: { name: 'Forest Green', emoji: '🌲', desc: 'Nature et zen' },
-    sunset: { name: 'Sunset Warm', emoji: '🌅', desc: 'Chaleur dorée' },
-    galaxy: { name: 'Purple Galaxy', emoji: '🌌', desc: 'Cosmos mystique' }
+  const changeTheme = (theme) => {
+    setIsAnimating(true)
+    setTimeout(() => {
+      setCurrentTheme(theme)
+      setIsAnimating(false)
+    }, 300)
   }
 
   useEffect(() => {
-    if (!user) {
-      router.push('/auth')
-    }
-  }, [user, router])
-
-  useEffect(() => {
-    // Appliquer le thème
-    document.documentElement.className = `theme-${currentTheme}`
+    // Appliquer le thème au document
+    document.documentElement.className = currentTheme.class
   }, [currentTheme])
 
-  const sidebarItems = [
-    { id: 'generate', icon: '🤖', label: 'Générateur IA', desc: 'Créez du contenu avec IA' },
-    { id: 'images', icon: '🎨', label: 'Images IA', desc: 'Générez des visuels' },
-    { id: 'calendar', icon: '📅', label: 'Planificateur', desc: 'Programmez vos posts' },
-    { id: 'social', icon: '📱', label: 'Réseaux sociaux', desc: 'Gérez vos comptes' },
-    { id: 'email', icon: '✉️', label: 'Email Marketing', desc: 'Campagnes automatisées' },
-    { id: 'analytics', icon: '📊', label: 'Analytics', desc: 'Analysez vos performances' },
-    { id: 'tokens', icon: '🪙', label: 'Tokens SaaS', desc: 'Gérez vos jetons' },
-    { id: 'referral', icon: '👥', label: 'Parrainage', desc: 'Invitez des amis' },
-    { id: 'settings', icon: '⚙️', label: 'Paramètres', desc: 'Configuration' },
-    { id: 'billing', icon: '💳', label: 'Facturation', desc: 'Abonnements & paiements' }
-  ]
-
-  const renderContent = () => {
-    switch(activeSection) {
-      case 'generate':
-        return (
-          <div className="space-y-6">
-            <div className="glass-card p-8 floating-animation">
-              <h2 className="text-3xl font-bold gradient-text mb-4">🤖 Générateur de Contenu IA</h2>
-              <p className="text-lg mb-6 opacity-80">Créez du contenu engageant avec l'intelligence artificielle</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="card p-6 hover:scale-105 transition-transform pulse-glow">
-                  <div className="text-4xl mb-4">📝</div>
-                  <h3 className="text-xl font-semibold mb-2">Articles de Blog</h3>
-                  <p className="opacity-70">Générez des articles optimisés SEO</p>
-                  <button className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:shadow-lg transition-all">
-                    Créer
-                  </button>
-                </div>
-
-                <div className="card p-6 hover:scale-105 transition-transform pulse-glow">
-                  <div className="text-4xl mb-4">📱</div>
-                  <h3 className="text-xl font-semibold mb-2">Posts Sociaux</h3>
-                  <p className="opacity-70">Contenu viral pour vos réseaux</p>
-                  <button className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:shadow-lg transition-all">
-                    Générer
-                  </button>
-                </div>
-
-                <div className="card p-6 hover:scale-105 transition-transform pulse-glow">
-                  <div className="text-4xl mb-4">✉️</div>
-                  <h3 className="text-xl font-semibold mb-2">Emails Marketing</h3>
-                  <p className="opacity-70">Campagnes qui convertissent</p>
-                  <button className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:shadow-lg transition-all">
-                    Lancer
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 'tokens':
-        return (
-          <div className="space-y-6">
-            <div className="glass-card p-8 floating-animation">
-              <h2 className="text-3xl font-bold gradient-text mb-4">🪙 Tokens SaaS</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="card p-6 text-center pulse-glow">
-                  <div className="text-5xl mb-4">💰</div>
-                  <h3 className="text-2xl font-bold">1,250</h3>
-                  <p className="opacity-70">Tokens disponibles</p>
-                </div>
-                <div className="card p-6 text-center pulse-glow">
-                  <div className="text-5xl mb-4">🎯</div>
-                  <h3 className="text-2xl font-bold">875</h3>
-                  <p className="opacity-70">Tokens utilisés</p>
-                </div>
-                <div className="card p-6 text-center pulse-glow">
-                  <div className="text-5xl mb-4">⭐</div>
-                  <h3 className="text-2xl font-bold">Niveau 3</h3>
-                  <p className="opacity-70">Statut premium</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-
-      default:
-        return (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4 floating-animation">🚀</div>
-            <h2 className="text-3xl font-bold gradient-text mb-4">Fonctionnalité en développement</h2>
-            <p className="text-xl opacity-70">Cette section sera bientôt disponible !</p>
-          </div>
-        )
-    }
-  }
-
-  if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="spinner"></div>
-    </div>
-  }
-
   return (
-    <div className={`min-h-screen theme-${currentTheme}`}>
-      <div className="bg-gradient-to-br from-gray-900 to-black min-h-screen flex">
+    <div className={`theme-container ${currentTheme.class}`}>
+      {/* Sélecteur de thème */}
+      <div className="theme-toggle">
+        <select 
+          value={currentTheme.name} 
+          onChange={(e) => changeTheme(themes.find(t => t.name === e.target.value))}
+          className="theme-input"
+          style={{ minWidth: '200px' }}
+        >
+          {themes.map(theme => (
+            <option key={theme.name} value={theme.name}>
+              {theme.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Sidebar */}
-        <div className={`${sidebarOpen ? 'w-80' : 'w-20'} transition-all duration-300 bg-gradient-to-b from-gray-800 to-gray-900 border-r border-opacity-20`}>
-
-          {/* Header Sidebar */}
-          <div className="p-6 border-b border-opacity-20">
-            <div className="flex items-center justify-between">
-              <div className={`${sidebarOpen ? 'block' : 'hidden'}`}>
-                <h1 className="text-2xl font-bold gradient-text">SmartSaaS</h1>
-                <p className="text-sm opacity-60">Marketing IA Platform</p>
-              </div>
-              <button 
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 hover:bg-white hover:bg-opacity-10 rounded-lg transition-all"
-              >
-                {sidebarOpen ? '◀' : '▶'}
-              </button>
+      {/* Navigation */}
+      <nav className="theme-nav">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <motion.div 
+              className="flex items-center space-x-2"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg"></div>
+              <h1 className="text-2xl font-bold">SmartSaaS</h1>
+            </motion.div>
+            
+            <div className="flex items-center space-x-6">
+              <Link href="/pricing" className="hover:text-blue-400 transition-colors">
+                Tarifs
+              </Link>
+              <Link href="/auth" className="theme-button">
+                Connexion
+              </Link>
             </div>
           </div>
+        </div>
+      </nav>
 
-          {/* User Info */}
-          <div className="p-4 border-b border-opacity-20">
-            <div className={`flex items-center space-x-3 ${sidebarOpen ? '' : 'justify-center'}`}>
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">{user.email[0].toUpperCase()}</span>
-              </div>
-              {sidebarOpen && (
-                <div>
-                  <p className="font-medium text-sm">{user.email}</p>
-                  <p className="text-xs opacity-60">Premium User</p>
+      {/* Section Hero */}
+      <section className="theme-hero">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h1 className="text-6xl font-bold mb-6">
+              Créez du contenu avec
+              <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent block">
+                l'Intelligence Artificielle
+              </span>
+            </h1>
+            
+            <p className="text-xl mb-8 max-w-3xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+              Générez des textes, images et campagnes marketing automatiquement. 
+              Gagnez des jetons SaaS et développez votre business en ligne.
+            </p>
+            
+            <div className="flex justify-center space-x-4">
+              <Link href="/auth" className="theme-button text-lg px-8 py-4">
+                Commencer Gratuitement
+              </Link>
+              <button className="theme-button bg-transparent border-2 border-current text-lg px-8 py-4">
+                Voir la Démo
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Aperçu des thèmes */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Choisissez votre thème</h2>
+            <p className="text-xl" style={{ color: 'var(--text-secondary)' }}>
+              Personnalisez l'apparence de votre interface
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {themes.map((theme, index) => (
+              <motion.div
+                key={theme.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`theme-card cursor-pointer ${currentTheme.name === theme.name ? 'ring-2 ring-blue-500' : ''}`}
+                onClick={() => changeTheme(theme)}
+              >
+                <div className="mb-4">
+                  <div 
+                    className="w-full h-32 rounded-lg mb-3"
+                    style={{ 
+                      background: `linear-gradient(135deg, ${theme.preview.bg} 0%, ${theme.preview.accent} 100%)` 
+                    }}
+                  ></div>
+                  <h3 className="text-xl font-semibold mb-2">{theme.name}</h3>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    {theme.description}
+                  </p>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="p-4 space-y-2">
-            {sidebarItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all hover:bg-white hover:bg-opacity-10 ${
-                  activeSection === item.id ? 'bg-white bg-opacity-20 border border-opacity-30' : ''
-                } ${sidebarOpen ? 'justify-start' : 'justify-center'}`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                {sidebarOpen && (
-                  <div className="text-left">
-                    <p className="font-medium text-sm">{item.label}</p>
-                    <p className="text-xs opacity-60">{item.desc}</p>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-2">
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: theme.preview.bg }}
+                    ></div>
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: theme.preview.accent }}
+                    ></div>
                   </div>
-                )}
-              </button>
+                  
+                  {currentTheme.name === theme.name && (
+                    <span className="text-sm font-medium text-green-400">✓ Actif</span>
+                  )}
+                </div>
+              </motion.div>
             ))}
           </div>
-
-          {/* Theme Selector */}
-          {sidebarOpen && (
-            <div className="p-4 border-t border-opacity-20">
-              <h3 className="text-sm font-semibold mb-3 opacity-80">🎨 Thèmes</h3>
-              <div className="space-y-2">
-                {Object.entries(themes).map(([key, theme]) => (
-                  <button
-                    key={key}
-                    onClick={() => setCurrentTheme(key)}
-                    className={`w-full flex items-center space-x-2 p-2 rounded text-xs transition-all hover:bg-white hover:bg-opacity-10 ${
-                      currentTheme === key ? 'bg-white bg-opacity-20' : ''
-                    }`}
-                  >
-                    <span>{theme.emoji}</span>
-                    <div className="text-left">
-                      <p className="font-medium">{theme.name}</p>
-                      <p className="opacity-60">{theme.desc}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Logout */}
-          <div className="absolute bottom-4 left-4 right-4">
-            <button 
-              onClick={logout}
-              className={`w-full flex items-center space-x-3 p-3 rounded-lg bg-red-600 hover:bg-red-700 transition-all ${
-                sidebarOpen ? 'justify-start' : 'justify-center'
-              }`}
-            >
-              <span>🚪</span>
-              {sidebarOpen && <span className="font-medium">Déconnexion</span>}
-            </button>
-          </div>
         </div>
+      </section>
 
-        {/* Contenu principal */}
-        <div className="flex-1 overflow-auto">
-          {/* Header */}
-          <div className="p-6 border-b border-opacity-20 bg-gradient-to-r from-transparent to-white to-transparent bg-opacity-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold gradient-text">
-                  {sidebarItems.find(item => item.id === activeSection)?.label}
-                </h1>
-                <p className="opacity-70">
-                  {sidebarItems.find(item => item.id === activeSection)?.desc}
+      {/* Fonctionnalités */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Fonctionnalités Puissantes</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: '🤖',
+                title: 'IA Générative',
+                description: 'Créez du contenu avec GPT-4 et DALL-E'
+              },
+              {
+                icon: '💰',
+                title: 'Jetons SaaS',
+                description: 'Système de récompenses blockchain'
+              },
+              {
+                icon: '📧',
+                title: 'Email Marketing',
+                description: 'Automatisation des campagnes'
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.2 }}
+                className="theme-stat-card"
+              >
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  {feature.description}
                 </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 rounded-full text-sm font-medium">
-                  🟢 En ligne
-                </div>
-                <div className="text-sm opacity-70">
-                  {new Date().toLocaleDateString('fr-FR')}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contenu */}
-          <div className="p-6">
-            {renderContent()}
+              </motion.div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-20 text-center">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl font-bold mb-6">
+              Prêt à révolutionner votre contenu ?
+            </h2>
+            <p className="text-xl mb-8" style={{ color: 'var(--text-secondary)' }}>
+              Rejoignez des milliers d'entrepreneurs qui utilisent déjà SmartSaaS
+            </p>
+            <Link href="/auth" className="theme-button text-lg px-8 py-4 animate-pulse">
+              Commencer Maintenant
+            </Link>
+          </motion.div>
+        </div>
+      </section>
     </div>
   )
 }

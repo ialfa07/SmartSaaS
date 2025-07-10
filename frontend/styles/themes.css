@@ -1,182 +1,257 @@
 
-/* ==================== THÈME 1: CYBERPUNK DARK ==================== */
-.theme-cyberpunk {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #16213e;
-  --text-primary: #00ff9f;
-  --text-secondary: #e94560;
-  --text-accent: #f39c12;
-  --border-color: #00ff9f;
-  --card-bg: rgba(26, 26, 46, 0.8);
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(45deg, #00ff9f, #00d4ff);
-  --shadow: 0 0 20px rgba(0, 255, 159, 0.3);
+/* =====================================================
+   THÈME 1: DARK MODERN (Sombre & Moderne)
+   ===================================================== */
+.theme-dark-modern {
+  --primary-color: #6366f1;
+  --secondary-color: #8b5cf6;
+  --accent-color: #06b6d4;
+  --background-primary: #0f172a;
+  --background-secondary: #1e293b;
+  --background-card: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border-color: #475569;
+  --gradient-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
 }
 
-.theme-cyberpunk body {
-  background: radial-gradient(ellipse at top, #1a1a2e, #0a0a0f);
-  color: var(--text-primary);
+/* =====================================================
+   THÈME 2: CYBER NEON (Cyberpunk & Néon)
+   ===================================================== */
+.theme-cyber-neon {
+  --primary-color: #00ff88;
+  --secondary-color: #ff0080;
+  --accent-color: #00d4ff;
+  --background-primary: #0a0a0a;
+  --background-secondary: #1a1a2e;
+  --background-card: #16213e;
+  --text-primary: #ffffff;
+  --text-secondary: #b8b8b8;
+  --border-color: #00ff88;
+  --gradient-bg: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
 }
 
-.theme-cyberpunk .card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
-}
-
-.theme-cyberpunk .neon-text {
-  text-shadow: 0 0 10px var(--text-primary), 0 0 20px var(--text-primary);
-}
-
-/* ==================== THÈME 2: MINIMAL LIGHT ==================== */
-.theme-minimal {
-  --bg-primary: #fafafa;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f5f5f5;
-  --text-primary: #2c3e50;
-  --text-secondary: #7f8c8d;
-  --text-accent: #3498db;
-  --border-color: #ecf0f1;
-  --card-bg: #ffffff;
-  --gradient-primary: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-  --gradient-secondary: linear-gradient(45deg, #a29bfe, #6c5ce7);
-  --shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-}
-
-.theme-minimal body {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  color: var(--text-primary);
-}
-
-.theme-minimal .card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow);
-}
-
-/* ==================== THÈME 3: OCEAN BLUE ==================== */
-.theme-ocean {
-  --bg-primary: #0c1821;
-  --bg-secondary: #1e3a5f;
-  --bg-tertiary: #2d5a87;
-  --text-primary: #a8dadc;
-  --text-secondary: #457b9d;
-  --text-accent: #f1faee;
-  --border-color: #457b9d;
-  --card-bg: rgba(30, 58, 95, 0.7);
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(45deg, #0077be, #00a8cc);
-  --shadow: 0 5px 25px rgba(69, 123, 157, 0.3);
-}
-
-.theme-ocean body {
-  background: radial-gradient(ellipse at center, #1e3a5f 0%, #0c1821 100%);
-  color: var(--text-primary);
-}
-
-.theme-ocean .wave-bg {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23457b9d' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") no-repeat bottom;
-}
-
-/* ==================== THÈME 4: FOREST GREEN ==================== */
-.theme-forest {
-  --bg-primary: #0d1b2a;
-  --bg-secondary: #1b263b;
-  --bg-tertiary: #2d3748;
-  --text-primary: #a3d977;
-  --text-secondary: #68d391;
-  --text-accent: #f7fafc;
-  --border-color: #68d391;
-  --card-bg: rgba(27, 38, 59, 0.8);
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(45deg, #48bb78, #38a169);
-  --shadow: 0 5px 25px rgba(104, 211, 145, 0.2);
-}
-
-.theme-forest body {
-  background: radial-gradient(ellipse at top, #1b263b 0%, #0d1b2a 100%);
-  color: var(--text-primary);
-}
-
-/* ==================== THÈME 5: SUNSET WARM ==================== */
+/* =====================================================
+   THÈME 3: SUNSET GRADIENT (Dégradé Coucher de Soleil)
+   ===================================================== */
 .theme-sunset {
-  --bg-primary: #1a1a2e;
-  --bg-secondary: #16213e;
-  --bg-tertiary: #0f4c75;
-  --text-primary: #ffd700;
-  --text-secondary: #ff6b6b;
-  --text-accent: #4ecdc4;
-  --border-color: #ff6b6b;
-  --card-bg: rgba(22, 33, 62, 0.8);
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(45deg, #ff9a56, #ffad56);
-  --shadow: 0 5px 25px rgba(255, 107, 107, 0.3);
+  --primary-color: #f97316;
+  --secondary-color: #ec4899;
+  --accent-color: #8b5cf6;
+  --background-primary: #1e1b4b;
+  --background-secondary: #312e81;
+  --background-card: #4338ca;
+  --text-primary: #fef3c7;
+  --text-secondary: #fbbf24;
+  --border-color: #f59e0b;
+  --gradient-bg: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4338ca 50%, #7c3aed 75%, #ec4899 100%);
 }
 
-.theme-sunset body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* =====================================================
+   THÈME 4: OCEAN DEEP (Océan Profond)
+   ===================================================== */
+.theme-ocean {
+  --primary-color: #0ea5e9;
+  --secondary-color: #06b6d4;
+  --accent-color: #10b981;
+  --background-primary: #0c4a6e;
+  --background-secondary: #075985;
+  --background-card: #0369a1;
+  --text-primary: #e0f2fe;
+  --text-secondary: #b3e5fc;
+  --border-color: #0284c7;
+  --gradient-bg: linear-gradient(135deg, #0c4a6e 0%, #075985 35%, #0369a1 70%, #0284c7 100%);
+}
+
+/* =====================================================
+   THÈME 5: MINIMALIST WHITE (Blanc Minimaliste)
+   ===================================================== */
+.theme-minimal-white {
+  --primary-color: #3b82f6;
+  --secondary-color: #6366f1;
+  --accent-color: #10b981;
+  --background-primary: #ffffff;
+  --background-secondary: #f8fafc;
+  --background-card: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --gradient-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+}
+
+/* =====================================================
+   STYLES GLOBAUX POUR TOUS LES THÈMES
+   ===================================================== */
+.theme-container {
+  background: var(--gradient-bg);
   color: var(--text-primary);
+  min-height: 100vh;
+  transition: all 0.3s ease;
 }
 
-/* ==================== THÈME 6: PURPLE GALAXY ==================== */
-.theme-galaxy {
-  --bg-primary: #0f0f23;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #2d1b69;
-  --text-primary: #bb86fc;
-  --text-secondary: #cf6679;
-  --text-accent: #03dac6;
-  --border-color: #bb86fc;
-  --card-bg: rgba(26, 26, 46, 0.7);
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(45deg, #8b5cf6, #a855f7);
-  --shadow: 0 5px 25px rgba(187, 134, 252, 0.4);
-}
-
-.theme-galaxy body {
-  background: radial-gradient(ellipse at center, #2d1b69 0%, #0f0f23 100%);
-  color: var(--text-primary);
-}
-
-.theme-galaxy .stars {
-  background-image: 
-    radial-gradient(2px 2px at 20px 30px, #eee, transparent),
-    radial-gradient(2px 2px at 40px 70px, #fff, transparent),
-    radial-gradient(1px 1px at 90px 40px, #eee, transparent);
-}
-
-/* ==================== COMPOSANTS UNIVERSELS ==================== */
-.glass-card {
+.theme-card {
+  background: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
+  transition: all 0.3s ease;
 }
 
-.floating-animation {
-  animation: float 6s ease-in-out infinite;
+.theme-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+.theme-button {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
-.pulse-glow {
-  animation: pulse-glow 2s infinite;
+.theme-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 5px var(--border-color); }
-  50% { box-shadow: 0 0 20px var(--border-color), 0 0 30px var(--border-color); }
+.theme-button:hover::before {
+  left: 100%;
 }
 
-.gradient-text {
-  background: var(--gradient-secondary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.theme-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.theme-input {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.theme-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color), 0.1);
+}
+
+.theme-nav {
+  background: var(--background-card);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  padding: 16px 0;
+}
+
+.theme-hero {
+  background: var(--gradient-bg);
+  padding: 80px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+
+.theme-stat-card {
+  background: var(--background-card);
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.theme-stat-card:hover {
+  transform: scale(1.05);
+  border-color: var(--primary-color);
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 12px 20px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .theme-card {
+    padding: 16px;
+  }
+  
+  .theme-hero {
+    padding: 40px 0;
+  }
+  
+  .theme-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 }
