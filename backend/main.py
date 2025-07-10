@@ -2,6 +2,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
 from openai_client import generate_text, generate_image, generate_marketing_content, generate_content_calendar
 from database import db_service
 from models import (PromptRequest, UserCreate, UserResponse, PaymentRequest, 
@@ -32,7 +33,34 @@ import os
 # Créer les tables au démarrage
 create_tables()
 
-app = FastAPI(title="SmartSaaS API", version="1.0.0")
+app = FastAPI(
+    title="SmartSaaS API",
+    version="1.0.0",
+    description="""
+    ## SmartSaaS - Plateforme de génération de contenu IA
+    
+    Cette API permet de :
+    - 🤖 Générer du contenu avec l'IA (texte, images, marketing)
+    - 💰 Gérer un système de jetons et récompenses
+    - 🔗 Intégrer la blockchain Web3
+    - 📧 Automatiser les emails
+    - 💳 Traiter les paiements Stripe
+    
+    ### Authentification
+    Utilisez le token JWT dans le header : `Authorization: Bearer <token>`
+    
+    ### Rate Limiting
+    100 requêtes par minute par IP
+    """,
+    contact={
+        "name": "Support SmartSaaS",
+        "email": "support@smartsaas.com"
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+    }
+)
 
 # Démarrer l'automatisation des emails
 try:
@@ -41,18 +69,19 @@ try:
 except ImportError:
     print("⚠️ Module email_scheduler non trouvé - emails automatiques désactivés")
 
+from config import settings
+from middleware import SecurityMiddleware, LoggingMiddleware
+
+# Ajouter les middlewares de sécurité
+app.add_middleware(SecurityMiddleware, rate_limit=100)
+app.add_middleware(LoggingMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://*.replit.app",
-        "https://*.replit.dev",
-        "https://*.replit.com",
-        "*"  # Pour le développement
-    ],
+    allow_origins=settings.ALLOWED_HOSTS if not settings.DEBUG else ["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # Configuration JWT
