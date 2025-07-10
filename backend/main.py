@@ -7,8 +7,24 @@ from database import db_service
 from models import (PromptRequest, UserCreate, UserResponse, PaymentRequest, 
                    ImageRequest, MarketingRequest, CalendarRequest, ReferralRequest,
                    create_tables, get_db)
+
+# Modèles Web3
+class WalletConnectRequest(BaseModel):
+    wallet_address: str
+    signature: str = None
+
+class Web3TransactionRequest(BaseModel):
+    to_address: str
+    amount: int
+    private_key: str = None
+
+class TokenMintRequest(BaseModel):
+    recipient_address: str
+    amount: int
+    reason: str
 from stripe_config import create_checkout_session, verify_payment, STRIPE_PLANS
 from email_service import email_service
+from web3_service import web3_service
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
 import os
@@ -308,6 +324,165 @@ def get_tokens_leaderboard():
     return {
         "leaderboard": leaderboard,
         "description": "Top 10 des utilisateurs par jetons gagnés"
+    }
+
+# Endpoints Web3/Blockchain
+@app.get("/web3/network-info")
+def get_network_info():
+    """Informations sur le réseau blockchain"""
+    return web3_service.get_network_info()
+
+@app.get("/web3/wallet/{wallet_address}")
+def get_wallet_balance(wallet_address: str):
+    """Récupère le solde blockchain d'un portefeuille"""
+    return web3_service.get_balance(wallet_address)
+
+@app.post("/web3/connect-wallet")
+def connect_wallet(request: WalletConnectRequest, current_user = Depends(get_current_user)):
+    """Connecte un portefeuille Web3 à l'utilisateur"""
+    if not web3_service.validate_address(request.wallet_address):
+        raise HTTPException(status_code=400, detail="Adresse de portefeuille invalide")
+    
+    # Mettre à jour l'utilisateur avec l'adresse du portefeuille
+    success = db_service.update_user_wallet(current_user.id, request.wallet_address)
+    
+    if success:
+        # Récompenser la connexion du portefeuille
+        db_service.add_saas_tokens(
+            current_user.id, 
+            25, 
+            "wallet_connected", 
+            "Première connexion portefeuille Web3"
+        )
+        
+        # Mint des tokens sur la blockchain pour synchroniser
+        if web3_service.is_connected():
+            mint_result = web3_service.mint_tokens(request.wallet_address, 25)
+            
+            return {
+                "success": True,
+                "wallet_address": request.wallet_address,
+                "reward": 25,
+                "blockchain_sync": mint_result.get("success", False),
+                "tx_hash": mint_result.get("tx_hash")
+            }
+        
+        return {
+            "success": True,
+            "wallet_address": request.wallet_address,
+            "reward": 25,
+            "blockchain_sync": False,
+            "message": "Portefeuille connecté, synchronisation blockchain à venir"
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Erreur lors de la connexion du portefeuille")
+
+@app.post("/web3/sync-tokens")
+def sync_tokens_to_blockchain(current_user = Depends(get_current_user)):
+    """Synchronise les jetons de la base de données vers la blockchain"""
+    if not web3_service.is_connected():
+        raise HTTPException(status_code=503, detail="Service blockchain indisponible")
+    
+    # Récupérer les jetons actuels de l'utilisateur
+    tokens_data = db_service.get_user_saas_tokens(current_user.id)
+    user_wallet = db_service.get_user_wallet(current_user.id)
+    
+    if not user_wallet:
+        raise HTTPException(status_code=400, detail="Aucun portefeuille connecté")
+    
+    # Mint les jetons sur la blockchain
+    mint_result = web3_service.mint_tokens(user_wallet, tokens_data["balance"])
+    
+    if mint_result["success"]:
+        return {
+            "success": True,
+            "tokens_synced": tokens_data["balance"],
+            "tx_hash": mint_result["tx_hash"],
+            "wallet_address": user_wallet
+        }
+    else:
+        raise HTTPException(status_code=400, detail=mint_result["error"])
+
+@app.post("/web3/transfer")
+def transfer_tokens_blockchain(request: Web3TransactionRequest, current_user = Depends(get_current_user)):
+    """Transfère des jetons SaaS sur la blockchain"""
+    if not web3_service.is_connected():
+        raise HTTPException(status_code=503, detail="Service blockchain indisponible")
+    
+    user_wallet = db_service.get_user_wallet(current_user.id)
+    if not user_wallet:
+        raise HTTPException(status_code=400, detail="Aucun portefeuille connecté")
+    
+    # Vérifier que l'utilisateur a assez de jetons
+    tokens_data = db_service.get_user_saas_tokens(current_user.id)
+    if tokens_data["balance"] < request.amount:
+        raise HTTPException(status_code=400, detail="Jetons insuffisants")
+    
+    # Note: Dans une vraie implémentation, on demanderait à l'utilisateur
+    # de signer la transaction côté client plutôt que d'envoyer sa clé privée
+    if not request.private_key:
+        raise HTTPException(status_code=400, detail="Signature de transaction requise")
+    
+    transfer_result = web3_service.transfer_tokens(
+        user_wallet,
+        request.to_address,
+        request.amount,
+        request.private_key
+    )
+    
+    if transfer_result["success"]:
+        # Déduire les jetons de la base de données
+        db_service.spend_saas_tokens(
+            current_user.id, 
+            request.amount, 
+            f"transfer_to_{request.to_address}"
+        )
+        
+        return {
+            "success": True,
+            "tx_hash": transfer_result["tx_hash"],
+            "amount": request.amount,
+            "to": request.to_address,
+            "new_balance": tokens_data["balance"] - request.amount
+        }
+    else:
+        raise HTTPException(status_code=400, detail=transfer_result["error"])
+
+@app.get("/web3/transaction/{tx_hash}")
+def get_transaction_status(tx_hash: str):
+    """Vérifie le statut d'une transaction blockchain"""
+    return web3_service.get_transaction_status(tx_hash)
+
+@app.post("/web3/admin/mint")
+def admin_mint_tokens(request: TokenMintRequest, current_user = Depends(get_current_user)):
+    """Mint des jetons (admin seulement)"""
+    # Vérifier que l'utilisateur est admin (à implémenter)
+    if current_user.email != "admin@smartsaas.com":
+        raise HTTPException(status_code=403, detail="Accès admin requis")
+    
+    if not web3_service.is_connected():
+        raise HTTPException(status_code=503, detail="Service blockchain indisponible")
+    
+    mint_result = web3_service.mint_tokens(request.recipient_address, request.amount)
+    
+    if mint_result["success"]:
+        return {
+            "success": True,
+            "tx_hash": mint_result["tx_hash"],
+            "amount": request.amount,
+            "recipient": request.recipient_address,
+            "reason": request.reason
+        }
+    else:
+        raise HTTPException(status_code=400, detail=mint_result["error"])
+
+@app.get("/web3/leaderboard")
+def get_blockchain_leaderboard():
+    """Classement basé sur les jetons blockchain (à implémenter)"""
+    # Cette fonctionnalité nécessiterait d'indexer les événements du contrat
+    return {
+        "message": "Fonctionnalité en développement",
+        "description": "Le classement blockchain sera disponible après déploiement du contrat"
     }
 
 @app.post("/tokens/exchange")

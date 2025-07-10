@@ -30,6 +30,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     referral_code = Column(String, unique=True, index=True)
     referred_by = Column(String, nullable=True)
+    wallet_address = Column(String, nullable=True, index=True)
     
     # Relations
     saas_tokens = relationship("SaasToken", back_populates="user")
