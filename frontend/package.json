@@ -8,13 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.18",
     "axios": "^1.4.0",
+    "framer-motion": "^10.16.4",
     "next": "13.4.12",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "@heroicons/react": "^2.0.18",
-    "framer-motion": "^10.16.4",
-    "react-hot-toast": "^2.4.1"
+    "react-hot-toast": "^2.5.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",
