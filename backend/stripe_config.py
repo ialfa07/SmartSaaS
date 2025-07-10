@@ -80,3 +80,87 @@ def create_customer_portal(customer_id: str) -> str:
         return session.url
     except Exception as e:
         raise Exception(f"Erreur portail client: {str(e)}")
+import stripe
+import os
+from typing import Dict
+
+# Configuration Stripe (vous devrez ajouter vos vraies clés dans les secrets)
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY', 'sk_test_fake_key_for_demo')
+
+# Plans disponibles
+STRIPE_PLANS = {
+    "starter": {
+        "name": "Starter",
+        "price": 9,
+        "credits": 100,
+        "features": [
+            "100 crédits/mois",
+            "Génération de texte IA",
+            "Support email"
+        ],
+        "stripe_price_id": "price_1234starter"
+    },
+    "pro": {
+        "name": "Pro", 
+        "price": 29,
+        "credits": 500,
+        "features": [
+            "500 crédits/mois",
+            "Génération texte + images",
+            "Calendrier de contenu",
+            "Support prioritaire"
+        ],
+        "stripe_price_id": "price_1234pro"
+    },
+    "enterprise": {
+        "name": "Enterprise",
+        "price": 99,
+        "credits": 2000,
+        "features": [
+            "2000 crédits/mois",
+            "Toutes les fonctionnalités",
+            "API accès",
+            "Support dédié"
+        ],
+        "stripe_price_id": "price_1234enterprise"
+    }
+}
+
+def create_checkout_session(user_email: str, plan_id: str) -> Dict:
+    """Crée une session de checkout Stripe"""
+    try:
+        if plan_id not in STRIPE_PLANS:
+            raise ValueError("Plan non valide")
+        
+        plan = STRIPE_PLANS[plan_id]
+        
+        # En mode démo, on simule une session Stripe
+        session = {
+            "id": f"cs_test_demo_{plan_id}_{user_email}",
+            "url": f"https://checkout.stripe.com/pay/demo#{plan_id}",
+            "success_url": "http://localhost:3000/success",
+            "cancel_url": "http://localhost:3000/pricing"
+        }
+        
+        return session
+        
+    except Exception as e:
+        raise Exception(f"Erreur création session: {str(e)}")
+
+def verify_payment(session_id: str) -> Dict:
+    """Vérifie le statut d'un paiement"""
+    try:
+        # En mode démo, on simule la vérification
+        if "demo" in session_id:
+            plan_id = session_id.split("_")[3]
+            return {
+                "status": "paid",
+                "plan_id": plan_id,
+                "amount": STRIPE_PLANS[plan_id]["price"]
+            }
+        else:
+            # En production, utilisez stripe.checkout.Session.retrieve(session_id)
+            return {"status": "unpaid"}
+            
+    except Exception as e:
+        raise Exception(f"Erreur vérification: {str(e)}")
