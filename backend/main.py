@@ -9,6 +9,10 @@ from saas_tokens import (
     process_referral, get_leaderboard, calculate_level, TOKEN_REWARDS
 )
 
+class ReferralRequest:
+    def __init__(self, referred_email: str):
+        self.referred_email = referred_email
+
 app = FastAPI()
 
 app.add_middleware(

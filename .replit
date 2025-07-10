@@ -4,7 +4,7 @@ modules = ["bash", "python-3.12", "nodejs-20", "web"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Full Stack Dev"
+runButton = "Full Stack (Sequential)"
 
 [[workflows.workflow]]
 name = "Frontend Dev"
@@ -36,6 +36,41 @@ args = "cd frontend && npm install && npm run dev"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd backend && python main.py"
+
+[[workflows.workflow]]
+name = "Start Backend"
+author = 44765265
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && pip install -r requirements.txt && python main.py"
+
+[[workflows.workflow]]
+name = "Start Frontend"
+author = 44765265
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm install && npm run dev"
+
+[[workflows.workflow]]
+name = "Full Stack (Sequential)"
+author = 44765265
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && pip install -r requirements.txt && python main.py &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 3"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm install && npm run dev"
 
 [[ports]]
 localPort = 3000
