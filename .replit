@@ -2,7 +2,7 @@ modules = ["nodejs-20", "python-3.12", "bash", "web"]
 run = "node index.js"
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-23_11"
 
 [workflows]
 runButton = "Full Stack (Sequential)"
@@ -77,23 +77,16 @@ args = "cd frontend && npm install && npm run dev"
 args = ["bash", "-c", "cd backend && python main.py"]
 
 [deployment]
-build = ["bash", "-c", "cd backend && pip install -r requirements.txt && cd ../frontend && npm install && npm run build"]
-run = ["bash", "-c", "cd backend && python main.py"]
+run = ["python", "backend/main.py"]
+deploymentTarget = "cloudrun"
 
 [[ports]]
 localPort = 8000
-externalPort = 8000
-name = "Backend API"
+externalPort = 80
 
 [[ports]]
 localPort = 3000
-externalPort = 3000
-name = "Frontend"
-
-[[ports]]
-localPort = 5432
-externalPort = 5432
-name = "PostgreSQL"
+externalPort = 443
 
 [env]
 DATABASE_URL = "postgresql://postgres:password@localhost:5432/smartsaas"
