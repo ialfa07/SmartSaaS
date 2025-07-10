@@ -66,7 +66,7 @@ args = "cd backend && pip install -r requirements.txt && python main.py &"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "sleep 3"
+args = "sleep 5"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
