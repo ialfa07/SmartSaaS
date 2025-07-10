@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
@@ -36,6 +35,7 @@ const Dashboard = () => {
     { id: 'tokens', icon: '🪙', label: 'Tokens SaaS', desc: 'Gérez vos jetons' },
     { id: 'referral', icon: '👥', label: 'Parrainage', desc: 'Invitez des amis' },
     { id: 'settings', icon: '⚙️', label: 'Paramètres', desc: 'Configuration' },
+    { id: 'billing', icon: '💳', label: 'Facturation', desc: 'Abonnements et paiements' },
   ]
 
   const renderContent = () => {
@@ -76,7 +76,7 @@ const Dashboard = () => {
                 </button>
               </div>
             </div>
-            
+
             {response && (
               <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg animate-fadeIn">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
@@ -97,7 +97,68 @@ const Dashboard = () => {
             )}
           </div>
         )
-      
+      case 'billing':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+                💳 Facturation & Abonnements
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+                    Plan actuel
+                  </h3>
+                  <div className="space-y-2">
+                    <p className="text-2xl font-bold text-blue-600">Plan Gratuit</p>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {credits} crédits restants
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => window.open('/pricing', '_blank')}
+                    className="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
+                  >
+                    Passer au Premium
+                  </button>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+                    Historique des paiements
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-600">
+                      <span className="text-gray-600 dark:text-gray-300">Aucun paiement</span>
+                      <span className="text-gray-500 dark:text-gray-400">-</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                  💡 <strong>Astuce:</strong> Passez à un plan premium pour débloquer toutes les fonctionnalités IA et obtenir plus de crédits !
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+      case 'settings':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+                ⚙️ Paramètres
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Configuration de votre compte et préférences.
+              </p>
+            </div>
+          </div>
+        )
+
       default:
         return (
           <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg text-center">
@@ -131,7 +192,7 @@ const Dashboard = () => {
               Plateforme Marketing IA
             </p>
           </div>
-          
+
           <nav className="mt-6 px-3">
             {sidebarItems.map((item) => (
               <button
@@ -166,7 +227,7 @@ const Dashboard = () => {
                   {sidebarItems.find(item => item.id === activeTab)?.desc}
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg">
                   💳 {credits} crédits

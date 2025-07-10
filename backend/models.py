@@ -5,3 +5,6 @@ class PromptRequest(BaseModel):
 
 class User(BaseModel):
     email: str
+
+class PaymentRequest(BaseModel):
+    plan_id: str

@@ -15,6 +15,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "cd frontend && npm install && npm run dev"
 
+[[workflows.workflow]]
+name = "Backend API"
+author = 44765265
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && python main.py"
+
 [[ports]]
 localPort = 3000
 externalPort = 80
