@@ -679,4 +679,279 @@ def get_email_stats(current_user = Depends(get_current_user)):
         }
     }
 
+# === NOUVEAUX ENDPOINTS IA ET SAAS ===
+
+class SaasGenerationRequest(BaseModel):
+    prompt: str
+    target_audience: str = ""
+    tech_stack: str = ""
+
+@app.post("/ai/generate-saas-idea")
+def generate_saas_idea_endpoint(request: SaasGenerationRequest, current_user = Depends(get_current_user)):
+    """Génère une idée de SaaS complète avec l'IA"""
+    if current_user.credits < 15:
+        raise HTTPException(status_code=403, detail="Crédits insuffisants (15 requis)")
+    
+    from ai_service import ai_service
+    
+    # Générer l'idée SaaS
+    saas_idea = ai_service.generate_saas_idea(request.prompt, request.target_audience, request.tech_stack)
+    
+    if not saas_idea["success"]:
+        raise HTTPException(status_code=400, detail=saas_idea["error"])
+    
+    # Générer la structure de code
+    code_structure = ai_service.generate_code_structure(saas_idea["saas_idea"])
+    
+    # Générer la stratégie marketing
+    marketing_strategy = ai_service.generate_marketing_strategy(saas_idea["saas_idea"])
+    
+    # Sauvegarder en base
+    saas_data = {
+        "saas_idea": saas_idea["saas_idea"],
+        "code_structure": code_structure.get("code_structure", {}),
+        "marketing_strategy": marketing_strategy.get("marketing_strategy", {})
+    }
+    
+    saas_id = db_service.create_generated_saas(
+        current_user.id,
+        saas_idea["saas_idea"].get("name", "SaaS sans nom"),
+        saas_data
+    )
+    
+    # Déduire les crédits et récompenser
+    db_service.spend_credits(current_user.id, 15)
+    db_service.add_saas_tokens(current_user.id, 50, "saas_generation", "Génération d'idée SaaS complète")
+    
+    return {
+        "success": True,
+        "saas_id": saas_id,
+        "saas_idea": saas_idea["saas_idea"],
+        "code_structure": code_structure.get("code_structure", {}),
+        "marketing_strategy": marketing_strategy.get("marketing_strategy", {}),
+        "credits_left": current_user.credits - 15
+    }
+
+@app.get("/ai/my-saas")
+def get_my_generated_saas(current_user = Depends(get_current_user)):
+    """Récupère tous les SaaS générés par l'utilisateur"""
+    saas_list = db_service.get_user_generated_saas(current_user.id)
+    return {"saas_list": saas_list}
+
+@app.get("/ai/saas/{saas_id}")
+def get_saas_details(saas_id: int, current_user = Depends(get_current_user)):
+    """Récupère les détails d'un SaaS généré"""
+    saas_data = db_service.get_generated_saas_by_id(saas_id)
+    if not saas_data:
+        raise HTTPException(status_code=404, detail="SaaS non trouvé")
+    return saas_data
+
+# === ENDPOINTS AUTOMATISATION ===
+
+class AutomationRequest(BaseModel):
+    name: str
+    config: dict
+
+@app.post("/automation/create")
+def create_automation_endpoint(request: AutomationRequest, current_user = Depends(get_current_user)):
+    """Crée une nouvelle automatisation"""
+    from automation_service import automation_service
+    
+    result = automation_service.create_automation(current_user.id, request.name, request.config)
+    
+    if result["success"]:
+        # Récompenser la création d'automatisation
+        db_service.add_saas_tokens(current_user.id, 10, "automation_created", f"Création automatisation '{request.name}'")
+    
+    return result
+
+@app.get("/automation/list")
+def get_user_automations_endpoint(current_user = Depends(get_current_user)):
+    """Récupère les automatisations de l'utilisateur"""
+    automations = db_service.get_user_automations(current_user.id)
+    return {"automations": automations}
+
+@app.post("/automation/run/{automation_id}")
+def run_automation_manually(automation_id: str, current_user = Depends(get_current_user)):
+    """Exécute manuellement une automatisation"""
+    from automation_service import automation_service
+    
+    result = automation_service.run_automation(automation_id)
+    return result
+
+@app.get("/automation/templates")
+def get_automation_templates():
+    """Retourne des templates d'automatisation"""
+    templates = [
+        {
+            "id": "daily_social_post",
+            "name": "Publication quotidienne sur les réseaux",
+            "description": "Publie automatiquement du contenu généré par IA",
+            "config": {
+                "trigger": {"type": "schedule", "frequency": "daily", "time": "09:00"},
+                "actions": [
+                    {
+                        "type": "generate_content",
+                        "prompt": "Génère un post inspirant pour les entrepreneurs",
+                        "content_type": "text"
+                    },
+                    {
+                        "type": "post_social",
+                        "platform": "twitter",
+                        "content": "{{generated_content}}"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "weekly_newsletter",
+            "name": "Newsletter hebdomadaire",
+            "description": "Envoie une newsletter automatique chaque semaine",
+            "config": {
+                "trigger": {"type": "schedule", "frequency": "weekly", "day": "monday", "time": "10:00"},
+                "actions": [
+                    {
+                        "type": "generate_content",
+                        "prompt": "Résumé des tendances SaaS de la semaine",
+                        "content_type": "text"
+                    },
+                    {
+                        "type": "send_email",
+                        "to_email": "{{user_email}}",
+                        "subject": "Newsletter SaaS - Semaine du {{date}}",
+                        "content": "{{generated_content}}"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "lead_follow_up",
+            "name": "Suivi des prospects",
+            "description": "Suit automatiquement les nouveaux prospects",
+            "config": {
+                "trigger": {"type": "webhook", "url": "/webhook/new-lead"},
+                "actions": [
+                    {
+                        "type": "send_email",
+                        "to_email": "{{lead_email}}",
+                        "subject": "Bienvenue ! Découvrez nos solutions SaaS",
+                        "content": "Merci pour votre intérêt..."
+                    },
+                    {
+                        "type": "webhook",
+                        "url": "{{crm_webhook}}",
+                        "method": "POST",
+                        "data": {"lead_email": "{{lead_email}}", "status": "contacted"}
+                    }
+                ]
+            }
+        }
+    ]
+    return {"templates": templates}
+
+# === ENDPOINTS CAMPAGNES MARKETING ===
+
+class CampaignRequest(BaseModel):
+    name: str
+    type: str  # email, social, ads
+    target_audience: str = ""
+    content: str = ""
+    config: dict = {}
+
+@app.post("/campaigns/create")
+def create_campaign_endpoint(request: CampaignRequest, current_user = Depends(get_current_user)):
+    """Crée une nouvelle campagne marketing"""
+    campaign_data = {
+        "name": request.name,
+        "type": request.type,
+        "target_audience": request.target_audience,
+        "content": request.content,
+        "config": request.config
+    }
+    
+    campaign_id = db_service.create_campaign(current_user.id, campaign_data)
+    
+    # Récompenser la création de campagne
+    db_service.add_saas_tokens(current_user.id, 15, "campaign_created", f"Création campagne '{request.name}'")
+    
+    return {
+        "success": True,
+        "campaign_id": campaign_id,
+        "message": f"Campagne '{request.name}' créée avec succès"
+    }
+
+@app.get("/campaigns/list")
+def get_user_campaigns_endpoint(current_user = Depends(get_current_user)):
+    """Récupère les campagnes de l'utilisateur"""
+    campaigns = db_service.get_user_campaigns(current_user.id)
+    return {"campaigns": campaigns}
+
+@app.get("/campaigns/templates")
+def get_campaign_templates():
+    """Retourne des templates de campagnes"""
+    templates = [
+        {
+            "id": "product_launch",
+            "name": "Lancement de produit",
+            "type": "email",
+            "description": "Campagne email pour le lancement d'un nouveau SaaS",
+            "template": {
+                "subject": "🚀 Découvrez notre nouveau SaaS : {{product_name}}",
+                "content": "Nous sommes ravis de vous présenter {{product_name}}, notre dernière innovation..."
+            }
+        },
+        {
+            "id": "social_engagement",
+            "name": "Engagement social",
+            "type": "social",
+            "description": "Campagne pour augmenter l'engagement sur les réseaux",
+            "template": {
+                "content": "💡 Astuce SaaS du jour : {{tip}}\n\n#SaaS #Entrepreneuriat #Innovation"
+            }
+        }
+    ]
+    return {"templates": templates}
+
+# === DASHBOARD ANALYTICS ===
+
+@app.get("/dashboard/analytics")
+def get_dashboard_analytics(current_user = Depends(get_current_user)):
+    """Récupère les analytics pour le dashboard"""
+    
+    # Statistiques des tokens
+    tokens_data = db_service.get_user_saas_tokens(current_user.id)
+    level_data = calculate_level(tokens_data["total_earned"])
+    
+    # Statistiques des SaaS générés
+    saas_count = len(db_service.get_user_generated_saas(current_user.id))
+    
+    # Statistiques des automatisations
+    automations = db_service.get_user_automations(current_user.id)
+    active_automations = len([a for a in automations if a["is_active"]])
+    
+    # Statistiques des campagnes
+    campaigns = db_service.get_user_campaigns(current_user.id)
+    active_campaigns = len([c for c in campaigns if c["status"] == "active"])
+    
+    return {
+        "user": {
+            "email": current_user.email,
+            "credits": current_user.credits,
+            "plan": current_user.plan,
+            "member_since": current_user.created_at
+        },
+        "tokens": {
+            "balance": tokens_data["balance"],
+            "total_earned": tokens_data["total_earned"],
+            "level": level_data
+        },
+        "stats": {
+            "saas_generated": saas_count,
+            "active_automations": active_automations,
+            "active_campaigns": active_campaigns,
+            "total_generations": tokens_data["total_earned"] // 2  # Estimation
+        },
+        "recent_activity": tokens_data["history"][:5]  # 5 dernières activités
+    }
+
 # Point d'entrée déplacé vers start.py pour éviter la redondance
