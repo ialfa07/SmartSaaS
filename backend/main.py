@@ -17,7 +17,7 @@ class WalletConnectRequest(BaseModel):
 class Web3TransactionRequest(BaseModel):
     to_address: str
     amount: int
-    private_key: str = None
+    signed_tx: str  # Transaction signée côté client
 
 class TokenMintRequest(BaseModel):
     recipient_address: str
@@ -453,16 +453,15 @@ def transfer_tokens_blockchain(request: Web3TransactionRequest, current_user = D
     if tokens_data["balance"] < request.amount:
         raise HTTPException(status_code=400, detail="Jetons insuffisants")
     
-    # Note: Dans une vraie implémentation, on demanderait à l'utilisateur
-    # de signer la transaction côté client plutôt que d'envoyer sa clé privée
-    if not request.private_key:
-        raise HTTPException(status_code=400, detail="Signature de transaction requise")
+    # SÉCURITÉ: Transaction doit être signée côté client avec MetaMask/WalletConnect
+    # Le backend ne doit jamais manipuler de clés privées
+    if not request.signed_tx:
+        raise HTTPException(status_code=400, detail="Transaction signée requise")
     
-    transfer_result = web3_service.transfer_tokens(
-        user_wallet,
-        request.to_address,
-        request.amount,
-        request.private_key
+    # Désactivé pour forcer une implémentation sécurisée
+    raise HTTPException(
+        status_code=501, 
+        detail="Endpoint désactivé pour sécurité. Implémentez la signature côté client avec MetaMask."
     )
     
     if transfer_result["success"]:
@@ -551,8 +550,15 @@ def get_plans():
 def create_checkout(payment: PaymentRequest, current_user = Depends(get_current_user)):
     """Crée une session de paiement Stripe"""
     try:
-        session = create_checkout_session(current_user.email, payment.plan_id)
-        return session
+        # URLs configurables via variables d'environnement
+        success_url = os.getenv("STRIPE_SUCCESS_URL", "http://localhost:3000/payment/success")
+        cancel_url = os.getenv("STRIPE_CANCEL_URL", "http://localhost:3000/pricing")
+
+        session_data = create_checkout_session(current_user.email, payment.plan_id, success_url, cancel_url)
+        if not session_data.get("success"):
+            raise HTTPException(status_code=400, detail=session_data.get("error", "Erreur inconnue"))
+
+        return session_data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
