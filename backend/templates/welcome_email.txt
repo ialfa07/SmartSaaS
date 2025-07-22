@@ -1,0 +1,14 @@
+
+Bienvenue sur SmartSaaS, {{ name }} !
+
+Félicitations ! Vous avez reçu 5 crédits gratuits pour commencer.
+
+Ce que vous pouvez faire :
+- Générer du contenu marketing personnalisé
+- Créer des visuels avec DALL-E
+- Planifier vos campagnes
+- Gagner des jetons SaaS
+
+Commencez maintenant : {{ dashboard_url }}
+
+L'équipe SmartSaaS

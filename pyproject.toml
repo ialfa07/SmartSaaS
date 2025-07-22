@@ -4,5 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
+    "aiosmtplib>=4.0.1",
+    "jinja2>=3.1.6",
     "stripe>=12.3.0",
 ]

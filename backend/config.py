@@ -1,8 +1,9 @@
 
 import os
 from typing import Optional
+from pydantic import BaseSettings, validator
 
-class Settings:
+class Settings(BaseSettings):
     # Base configuration
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-in-production")
     ALGORITHM: str = "HS256"
@@ -17,10 +18,23 @@ class Settings:
     STRIPE_PUBLIC_KEY: Optional[str] = os.getenv("STRIPE_PUBLIC_KEY")
     
     # Email configuration
-    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
-    SMTP_USER: Optional[str] = os.getenv("SMTP_USER")
-    SMTP_PASSWORD: Optional[str] = os.getenv("SMTP_PASSWORD")
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    FROM_EMAIL: str = "noreply@smartsaas.com"
+    
+    # Frontend URL pour les liens dans les emails
+    FRONTEND_URL: str = "https://smartsaas.com"
+    
+    @validator('SMTP_USER')
+    def smtp_user_required(cls, v):
+        if not v:
+            print("⚠️ SMTP_USER non configuré - emails désactivés")
+        return v
+    
+    class Config:
+        env_file = ".env"
     
     # Web3/Blockchain
     WEB3_RPC_URL: Optional[str] = os.getenv("WEB3_RPC_URL")

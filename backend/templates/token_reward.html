@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; padding: 30px; text-align: center; }
+        .reward { background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%); padding: 30px; border-radius: 10px; margin: 20px 0; }
+        .balance { background: #f8f9ff; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .button { display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Félicitations !</h1>
+        
+        <div class="reward">
+            <h2>+{{ reward_amount }} jetons SaaS</h2>
+            <p><strong>Raison :</strong> {{ reason }}</p>
+        </div>
+        
+        <div class="balance">
+            <h3>💰 Nouveau solde : {{ new_balance }} jetons</h3>
+            <p>Utilisez vos jetons pour :</p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>🔄 Échanger contre des crédits IA (50 jetons = 1 crédit)</li>
+                <li>🎁 Débloquer des fonctionnalités premium</li>
+                <li>🏆 Grimper dans le classement</li>
+            </ul>
+        </div>
+        
+        <a href="{{ tokens_url }}" class="button">Voir mes jetons</a>
+    </div>
+</body>
+</html>

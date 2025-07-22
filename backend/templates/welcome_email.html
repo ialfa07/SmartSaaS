@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; }
+        .button { display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .feature { margin: 15px 0; padding: 15px; background: #f8f9ff; border-radius: 5px; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Bienvenue sur SmartSaaS !</h1>
+            <p>Bonjour {{ name }}, prêt à révolutionner votre marketing avec l'IA ?</p>
+        </div>
+        <div class="content">
+            <h2>🎁 Vos crédits de bienvenue vous attendent !</h2>
+            <p>Félicitations ! Vous avez reçu <strong>5 crédits gratuits</strong> pour commencer à générer du contenu IA dès maintenant.</p>
+            
+            <div class="feature">
+                <h3>✨ Ce que vous pouvez faire :</h3>
+                <ul>
+                    <li>🤖 Générer du contenu marketing personnalisé</li>
+                    <li>🎨 Créer des visuels avec DALL-E</li>
+                    <li>📅 Planifier vos campagnes</li>
+                    <li>🪙 Gagner des jetons SaaS et débloquer des récompenses</li>
+                </ul>
+            </div>
+            
+            <div class="feature">
+                <h3>🎯 Conseils pour bien commencer :</h3>
+                <ol>
+                    <li>Essayez le générateur de contenu avec votre secteur d'activité</li>
+                    <li>Explorez les différentes plateformes (Instagram, LinkedIn, Facebook)</li>
+                    <li>Complétez votre profil pour gagner 10 jetons SaaS</li>
+                    <li>Partagez votre code de parrainage pour gagner plus de récompenses</li>
+                </ol>
+            </div>
+            
+            <a href="{{ dashboard_url }}" class="button">🚀 Commencer maintenant</a>
+        </div>
+        <div class="footer">
+            <p>L'équipe SmartSaaS 💜</p>
+            <p><small>Si vous avez des questions, répondez simplement à cet email !</small></p>
+        </div>
+    </div>
+</body>
+</html>

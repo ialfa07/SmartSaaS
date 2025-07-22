@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; padding: 30px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .stats { background: #f8f9ff; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .button { display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 Bonjour !</h1>
+            <p>Il est temps de booster votre marketing avec l'IA</p>
+        </div>
+        
+        <div class="stats">
+            <h3>📊 Votre tableau de bord :</h3>
+            <p>💳 Crédits disponibles : <strong>{{ credits_left }}</strong></p>
+            <p>🪙 Réclamez votre récompense quotidienne : <strong>+1 jeton SaaS</strong></p>
+        </div>
+        
+        <h3>💡 Idée du jour :</h3>
+        <p>Créez du contenu pour 3 plateformes différentes avec le même thème pour maximiser votre portée !</p>
+        
+        <a href="{{ dashboard_url }}" class="button">🚀 Générer du contenu</a>
+        
+        <p><small>Vous recevez cet email car vous n'avez pas utilisé SmartSaaS aujourd'hui. Vous pouvez vous désabonner à tout moment.</small></p>
+    </div>
+</body>
+</html>
