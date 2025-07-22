@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
 
@@ -11,6 +12,8 @@ export default function Dashboard() {
     generations: 0,
     level: { name: 'Débutant', level: 1 }
   });
+  const [dailyRewardClaimed, setDailyRewardClaimed] = useState(false);
+  const [weeklyProgress, setWeeklyProgress] = useState({ current: 1, target: 3 });
 
   useEffect(() => {
     loadStats();
@@ -34,133 +37,241 @@ export default function Dashboard() {
     }
   };
 
+  const claimDailyReward = async () => {
+    try {
+      await api.post('/tokens/daily-reward');
+      setDailyRewardClaimed(true);
+      loadStats(); // Recharger les stats
+    } catch (error) {
+      console.error('Erreur réclamation récompense:', error);
+    }
+  };
+
+  const sidebarItems = [
+    { name: 'Dashboard', icon: '📊', active: true },
+    { name: 'Génération IA', icon: '🤖', href: '/generate' },
+    { name: 'Mes Contenus', icon: '📝', href: '/content' },
+    { name: 'Automatisation', icon: '⚡', href: '/automation' },
+    { name: 'Parrainage', icon: '🎯', href: '/referral' },
+    { name: 'Profil', icon: '👤', href: '/profile' },
+  ];
+
+  const quickAccessTools = [
+    { name: 'Post LinkedIn', icon: '💼', color: 'from-blue-500 to-blue-600' },
+    { name: 'Story Instagram', icon: '📸', color: 'from-pink-500 to-purple-600' },
+    { name: 'Thread Twitter', icon: '🐦', color: 'from-cyan-400 to-cyan-600' },
+    { name: 'Email Marketing', icon: '📧', color: 'from-green-500 to-green-600' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Dashboard SmartSaaS
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Bienvenue {user?.email}
-          </p>
+    <div className="min-h-screen flex" style={{ background: 'var(--bg-primary)' }}>
+      {/* Sidebar */}
+      <nav className="sidebar">
+        <div className="px-6 mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              SmartSaaS
+            </h1>
+          </div>
         </div>
 
-        {/* Statistiques principales */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Crédits IA
-                </p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {stats.credits}
-                </p>
-              </div>
-              <div className="text-blue-500">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-1">
+          {sidebarItems.map((item, index) => (
+            <motion.a
+              key={item.name}
+              href={item.href || '#'}
+              className={`sidebar-item ${item.active ? 'active' : ''}`}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <span className="sidebar-item-icon">{item.icon}</span>
+              {item.name}
+            </motion.a>
+          ))}
+        </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Jetons SaaS
-                </p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {stats.tokens}
-                </p>
+        {/* User info en bas */}
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="card p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold">
+                {user?.email?.[0]?.toUpperCase() || 'U'}
               </div>
-              <div className="text-green-500">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Niveau
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                  {user?.email?.split('@')[0] || 'Utilisateur'}
                 </p>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                   {stats.level.name}
                 </p>
               </div>
-              <div className="text-purple-500">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Générations
-                </p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {stats.generations}
-                </p>
-              </div>
-              <div className="text-orange-500">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                </svg>
-              </div>
             </div>
           </div>
         </div>
+      </nav>
 
-        {/* Actions rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Génération rapide
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Créez du contenu IA instantanément
-            </p>
-            <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-              Commencer
-            </button>
-          </div>
+      {/* Contenu principal */}
+      <main className="main-content">
+        {/* Header */}
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+            Bonjour, {user?.email?.split('@')[0] || 'Utilisateur'} ! 👋
+          </h1>
+          <p style={{ color: 'var(--text-secondary)' }}>
+            Voici un aperçu de votre activité marketing IA
+          </p>
+        </motion.div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Mes jetons
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Gérez vos jetons SaaS et récompenses
-            </p>
-            <button className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-              Voir détails
-            </button>
+        {/* Stats rapides */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="card">
+            <div className="widget-title">Crédits IA</div>
+            <div className="widget-stat">{stats.credits}</div>
+            <p style={{ color: 'var(--text-secondary)' }}>Générations disponibles</p>
           </div>
+          
+          <div className="card">
+            <div className="widget-title">Jetons SaaS</div>
+            <div className="widget-stat text-yellow-400">{stats.tokens}</div>
+            <p style={{ color: 'var(--text-secondary)' }}>Récompenses gagnées</p>
+          </div>
+          
+          <div className="card">
+            <div className="widget-title">Contenus Générés</div>
+            <div className="widget-stat">{stats.generations}</div>
+            <p style={{ color: 'var(--text-secondary)' }}>Ce mois</p>
+          </div>
+        </motion.div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Parrainage
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Invitez des amis et gagnez des jetons
-            </p>
-            <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
-              Inviter
-            </button>
-          </div>
+        {/* Grille de widgets */}
+        <div className="widget-grid">
+          {/* Accès rapide */}
+          <motion.div 
+            className="widget col-span-2"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="widget-title">🚀 Accès Rapide</div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              {quickAccessTools.map((tool, index) => (
+                <motion.button
+                  key={tool.name}
+                  className={`p-4 rounded-lg bg-gradient-to-r ${tool.color} text-white font-medium hover:scale-105 transition-transform`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                >
+                  <div className="text-2xl mb-2">{tool.icon}</div>
+                  {tool.name}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Récompense quotidienne */}
+          <motion.div 
+            className="widget widget-success"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="widget-title">🎁 Récompense Quotidienne</div>
+            <div className="text-center mt-4">
+              <div className="text-4xl mb-3">💰</div>
+              <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
+                Réclamez vos 5 jetons quotidiens !
+              </p>
+              {!dailyRewardClaimed ? (
+                <button 
+                  onClick={claimDailyReward}
+                  className="btn btn-success w-full"
+                >
+                  Réclamer
+                </button>
+              ) : (
+                <div className="reward-badge">
+                  ✅ Réclamé aujourd'hui
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Activité récente */}
+          <motion.div 
+            className="widget"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <div className="widget-title">📋 Activité Récente</div>
+            <div className="space-y-3 mt-4">
+              <div className="flex items-center space-x-3 p-3 rounded-lg" style={{ background: 'var(--bg-tertiary)' }}>
+                <div className="text-xl">📝</div>
+                <div>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                    Post LinkedIn généré
+                  </p>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    Il y a 2 heures
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3 p-3 rounded-lg" style={{ background: 'var(--bg-tertiary)' }}>
+                <div className="text-xl">🖼️</div>
+                <div>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                    Image DALL-E créée
+                  </p>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    Hier
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Objectif hebdomadaire */}
+          <motion.div 
+            className="widget"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            <div className="widget-title">🎯 Objectif de la Semaine</div>
+            <div className="mt-4">
+              <p className="mb-3" style={{ color: 'var(--text-secondary)' }}>
+                Générez du contenu pour 3 plateformes différentes
+              </p>
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill"
+                  style={{ width: `${(weeklyProgress.current / weeklyProgress.target) * 100}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-sm mt-2">
+                <span style={{ color: 'var(--text-secondary)' }}>
+                  {weeklyProgress.current}/{weeklyProgress.target} plateformes
+                </span>
+                <span className="text-yellow-400 font-medium">
+                  +50 jetons
+                </span>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
