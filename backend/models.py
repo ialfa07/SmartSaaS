@@ -10,19 +10,20 @@ import os
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./smartsaas.db")
 
 # Ajuster l'URL pour PostgreSQL si nécessaire
+# Arguments de connexion spécifiques au moteur
+connect_args = {}
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+elif DATABASE_URL.startswith("sqlite"):
+    # SQLite requiert cet argument pour FastAPI
+    connect_args = {"check_same_thread": False}
 
-# Configuration du moteur avec options pour PostgreSQL
-if "postgresql" in DATABASE_URL:
-    engine = create_engine(
-        DATABASE_URL,
-        pool_pre_ping=True,
-        pool_recycle=300,
-        echo=False
-    )
-else:
-    engine = create_engine(DATABASE_URL, echo=False)
+# Configuration du moteur unifié
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

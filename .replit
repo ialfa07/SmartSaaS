@@ -5,7 +5,7 @@ run = "node index.js"
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Start Backend"
+runButton = "Start Backend Fixed"
 
 [[workflows.workflow]]
 name = "Frontend Dev"
@@ -72,6 +72,15 @@ args = "sleep 5"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd frontend && npm install && npm run dev"
+
+[[workflows.workflow]]
+name = "Start Backend Fixed"
+author = 44859709
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && python -m pip install pydantic-settings && python start.py"
 
 [[ports]]
 localPort = 3000

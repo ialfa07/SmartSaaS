@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
@@ -140,13 +139,13 @@ export default function Dashboard() {
             <div className="widget-stat">{stats.credits}</div>
             <p style={{ color: 'var(--text-secondary)' }}>Générations disponibles</p>
           </div>
-          
+
           <div className="card">
             <div className="widget-title">Jetons SaaS</div>
             <div className="widget-stat text-yellow-400">{stats.tokens}</div>
             <p style={{ color: 'var(--text-secondary)' }}>Récompenses gagnées</p>
           </div>
-          
+
           <div className="card">
             <div className="widget-title">Contenus Générés</div>
             <div className="widget-stat">{stats.generations}</div>

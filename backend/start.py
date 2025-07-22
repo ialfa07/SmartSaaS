@@ -31,15 +31,9 @@ def main():
     print(f"📍 Serveur: http://0.0.0.0:{config['port']}")
     print(f"🔧 Mode debug: {config['reload']}")
     print(f"⚡ Workers: {config['workers']}")
-    
-    # Initialiser la base de données
-    try:
-        from init_db import setup_postgresql, create_tables
-        setup_postgresql()
-        create_tables()
-        print("✅ Base de données initialisée")
-    except Exception as e:
-        print(f"⚠️ Erreur init DB: {e}")
+    print("ℹ️  L'initialisation de la base de données et la création des tables")
+    print("ℹ️  sont gérées au démarrage de l'application dans main.py.")
+    print("ℹ️  Pour une configuration manuelle de PostgreSQL, exécutez : python backend/init_db.py")
     
     # Démarrer le serveur
     uvicorn.run(**config)
