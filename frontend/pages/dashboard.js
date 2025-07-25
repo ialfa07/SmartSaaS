@@ -134,22 +134,70 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="card">
-            <div className="widget-title">Crédits IA</div>
-            <div className="widget-stat">{stats.credits}</div>
-            <p style={{ color: 'var(--text-secondary)' }}>Générations disponibles</p>
+          <div className="card card-interactive">
+            <div className="card-header">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <span className="text-xl">🤖</span>
+                </div>
+                <div className="card-title">Crédits IA</div>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="widget-stat text-gradient">{stats.credits}</div>
+              <p style={{ 
+                color: 'var(--text-secondary)', 
+                fontSize: 'var(--font-size-sm)' 
+              }}>
+                Générations disponibles
+              </p>
+            </div>
           </div>
 
-          <div className="card">
-            <div className="widget-title">Jetons SaaS</div>
-            <div className="widget-stat text-yellow-400">{stats.tokens}</div>
-            <p style={{ color: 'var(--text-secondary)' }}>Récompenses gagnées</p>
+          <div className="card card-success card-interactive">
+            <div className="card-header">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-lg" style={{ 
+                  background: 'var(--accent-success)' 
+                }}>
+                  <div className="flex items-center justify-center h-full">
+                    <span className="text-xl">💰</span>
+                  </div>
+                </div>
+                <div className="card-title">Jetons SaaS</div>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="widget-stat" style={{ color: 'var(--accent-success)' }}>
+                {stats.tokens}
+              </div>
+              <p style={{ 
+                color: 'var(--text-secondary)', 
+                fontSize: 'var(--font-size-sm)' 
+              }}>
+                Récompenses gagnées
+              </p>
+            </div>
           </div>
 
-          <div className="card">
-            <div className="widget-title">Contenus Générés</div>
-            <div className="widget-stat">{stats.generations}</div>
-            <p style={{ color: 'var(--text-secondary)' }}>Ce mois</p>
+          <div className="card card-interactive">
+            <div className="card-header">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center">
+                  <span className="text-xl">📊</span>
+                </div>
+                <div className="card-title">Contenus Générés</div>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="widget-stat text-gradient">{stats.generations}</div>
+              <p style={{ 
+                color: 'var(--text-secondary)', 
+                fontSize: 'var(--font-size-sm)' 
+              }}>
+                Ce mois
+              </p>
+            </div>
           </div>
         </motion.div>
 
