@@ -1,8 +1,8 @@
-modules = ["nodejs-20", "python-3.12", "bash", "web"]
-run = "node index.js"
+modules = ["python-3.12", "nodejs-20", "bash", "web"]
+run = "npm run dev"
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-25_05"
 
 [workflows]
 runButton = "Start Backend Fixed"
@@ -115,4 +115,4 @@ localPort = 46309
 externalPort = 5000
 
 [deployment]
-run = ["sh", "-c", "node index.js"]
+run = ["sh", "-c", "npm run dev"]
