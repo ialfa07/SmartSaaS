@@ -17,3 +17,5 @@ sendgrid
 python-dotenv
 email-validator
 requests
+pytest
+jinja2
